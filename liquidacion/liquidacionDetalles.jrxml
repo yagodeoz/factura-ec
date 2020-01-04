@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="FrmRideFacturaInfoAdicional" pageWidth="555" pageHeight="800" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="c851886e-d64c-4fea-abfc-0e89cbbc9bad">
+	<property name="ireport.zoom" value="1.366026910730141"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="descuento" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[descuento]]></fieldDescription>
+	</field>
+	<field name="codigoauxiliar" class="java.lang.String">
+		<fieldDescription><![CDATA[codigoauxiliar]]></fieldDescription>
+	</field>
+	<field name="codigoprincipal" class="java.lang.String">
+		<fieldDescription><![CDATA[codigoprincipal]]></fieldDescription>
+	</field>
+	<field name="preciounitario" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[preciounitario]]></fieldDescription>
+	</field>
+	<field name="valorimpuesto" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[valorimpuesto]]></fieldDescription>
+	</field>
+	<field name="preciototal" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[preciototal]]></fieldDescription>
+	</field>
+	<field name="descripcion" class="java.lang.String">
+		<fieldDescription><![CDATA[descripcion]]></fieldDescription>
+	</field>
+	<field name="cantidad" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[cantidad]]></fieldDescription>
+	</field>
+	<field name="nomadicional1" class="java.lang.String">
+		<fieldDescription><![CDATA[nomadicional1]]></fieldDescription>
+	</field>
+	<field name="nomadicional2" class="java.lang.String">
+		<fieldDescription><![CDATA[nomadicional2]]></fieldDescription>
+	</field>
+	<field name="nomadicional3" class="java.lang.String">
+		<fieldDescription><![CDATA[nomadicional3]]></fieldDescription>
+	</field>
+	<field name="valadicional1" class="java.lang.String">
+		<fieldDescription><![CDATA[valadicional1]]></fieldDescription>
+	</field>
+	<field name="valadicional2" class="java.lang.String">
+		<fieldDescription><![CDATA[valadicional2]]></fieldDescription>
+	</field>
+	<field name="valadicional3" class="java.lang.String">
+		<fieldDescription><![CDATA[valadicional3]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="10" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="133" y="0" width="185" height="10" uuid="86c855e7-64e1-4d72-8f92-0457abc1a534"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{descripcion}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,###,##0.0000" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="416" y="0" width="45" height="10" uuid="d0524370-af62-4250-9028-89eed638645e"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{preciounitario}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,###,##0.0000" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="99" y="0" width="34" height="10" uuid="b8a72a7a-2cd3-4df3-be2a-504f36ca1127"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cantidad}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" mode="Transparent" x="0" y="0" width="52" height="10" isPrintWhenDetailOverflows="true" uuid="c829f0fd-4596-447e-a63c-a0da2afd99d4"/>
+				<box>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{codigoprincipal}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,###,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="461" y="0" width="45" height="10" uuid="7d7f8127-331d-41e0-a58f-2095ee5d1c1c"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{descuento}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,###,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="507" y="0" width="48" height="10" uuid="80e1d1e3-e284-4f61-a09c-81ca65f2759f"/>
+				<box>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{preciototal}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,###,##0.0000" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="318" y="0" width="98" height="10" uuid="06ca6caf-c7a1-42c9-b658-c8b387a46e4b"/>
+				<textElement verticalAlignment="Middle" markup="styled">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{nomadicional1}!=null?"<b>" + $F{nomadicional1} + "</b> : " + $F{valadicional1}:"") +
+($F{nomadicional2}!=null?"\n<b>" + $F{nomadicional2} + "</b> : " + $F{valadicional2}:"") +
+($F{nomadicional3}!=null?"\n<b>" + $F{nomadicional3} + "</b> : " + $F{valadicional3}:"")]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="53" y="0" width="46" height="10" uuid="88be2122-a2d2-4357-92b6-edc61fcfaf4b"/>
+				<textElement verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{codigoauxiliar}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>
