@@ -1,0 +1,1152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/pag_principal_tmpl.xhtml">
+
+	<ui:define name="PANELES_PERSONALIZADOS">
+
+		<div class="ui-g ui-fluid dashboard">
+
+			<div class="ui-g-12 ui-md-12">
+				<div class="card">
+					<i class="fa fa-eye"></i> <span style="color: RED;">
+						Facturación electrónica manual </span>
+				</div>
+			</div>
+
+			<div class="ui-g-12 ui-md-12">
+				<div class="card">
+
+					<h:form id="frmFactura">
+						<p:growl id="msgs" showDetail="true" />
+
+						<p:commandButton style="display:none" id="enterBtn" />
+						<p:defaultCommand target="enterBtn" />
+
+						<fieldset>
+							<legend
+								style="font-family: Verdana, Arial, sans-serif; font-size: 11px;">Datos
+								Generales</legend>
+							<h:panelGrid columns="1" cellpadding="5">
+								<h:panelGrid columns="3">
+
+									<p:outputLabel value="Empresas:" />
+									<p:selectOneMenu id="cbmRuc"
+										value="#{facturaMBean.mbGeneral.id}">
+										<f:selectItem itemValue="" itemLabel="Seleccione una empresa" />
+										<f:selectItems value="#{facturaMBean.mbGeneral.itemsCompania}" />
+										<p:ajax event="change"
+											listener="#{facturaMBean.actualizaInfoCia}"
+											update=":frmFactura:outRazonSocial , :frmFactura:cmbEmiEstab"></p:ajax>
+									</p:selectOneMenu>
+									<h:outputText value="#{facturaMBean.mbGeneral.compania.ruc}"
+										id="outRazonSocial" />
+
+									<p:outputLabel value="Punto de emisión" />
+
+									<p:selectOneMenu id="cmbEmiEstab"
+										value="#{facturaMBean.emisionEstab}">
+										<f:selectItem itemValue="-"
+											itemLabel="Seleccione un punto de emisión" />
+										<f:selectItems value="#{facturaMBean.tiposEmisionEstab}" />
+									</p:selectOneMenu>
+								</h:panelGrid>
+								<h:panelGrid columns="6" id="pGrNroGuiaRem">
+
+									<p:outputLabel value="Guia de remisión: " />
+
+									<p:inputText value="#{facturaMBean.adEmision}"
+										onkeypress="if (event.keyCode == 13) {return false; };"
+										size="3" maxlength="3" />
+									<p:outputLabel value="-" />
+									<p:inputText value="#{facturaMBean.adEstable}"
+										onkeypress="if (event.keyCode == 13) {return false; };"
+										size="3" maxlength="3" />
+									<p:outputLabel value="-" />
+									<p:inputText value="#{facturaMBean.adSecuencia}"
+										onkeypress="if (event.keyCode == 13) {return false; };"
+										size="11" maxlength="9" />
+
+								</h:panelGrid>
+								<h:panelGrid columns="2">
+									<p:outputLabel for="button"
+										value="Fecha de emisión(dd/mm/yyyy):" />
+
+									<p:calendar id="button" value="#{facturaMBean.fechaEmision}"
+										showOn="button" size="10" readonlyInput="true"
+										pattern="dd/MM/yyyy">
+
+									</p:calendar>
+
+								</h:panelGrid>
+
+
+								<h:panelGrid columns="2">
+									<p:outputLabel value="Tipo de Factura : " />
+									<p:selectOneRadio id="rdbTipoFactura" columns="1"
+										value="#{facturaMBean.tipoFactura}">
+										<f:selectItem itemLabel="Factura Normal" itemValue="FNO" />
+										<f:selectItem itemLabel="Factura Exportación" itemValue="FEX" />
+										<f:selectItem itemLabel="Factura Reembolso" itemValue="FRE" />
+										<p:ajax event="change"
+											update=":frmFactura:ppFactExport , :frmFactura:ppFactNormal , :frmFactura:pnlGrTotales ,  :frmFactura:ppPagosExpor , :frmFactura:pnlLengReem2 , :frmFactura:pnlLengReem1"
+											listener="#{facturaMBean.cambiaTipoFactura()}" />
+									</p:selectOneRadio>
+								</h:panelGrid>
+
+								<p:panel id="ppFactNormal"
+									visible="#{facturaMBean.habilitaNormal}">
+									<h:panelGrid columns="2" style="margin-bottom:10px"
+										cellpadding="5" id="pnGrFacturaNormal">
+										<h:panelGrid columns="1" style="margin-bottom:10px"
+											cellpadding="5">
+											<p:selectOneRadio id="rdbClasesIdent"
+												value="#{facturaMBean.claseIdent}" columns="1">
+												<f:selectItem itemLabel="Consumidor Final" itemValue="07" />
+												<f:selectItem itemLabel="RUC/CI/PAS/PLAC" itemValue="02" />
+												<p:ajax event="change" update=":frmFactura:pgDatosComprador"
+													listener="#{facturaMBean.cambiaConsumidor}" />
+											</p:selectOneRadio>
+
+										</h:panelGrid>
+										<h:panelGrid columns="6" style="margin-bottom:10px"
+											cellpadding="5" id="pgDatosComprador">
+
+											<p:inputText id="txtIdentComprador" maxlength="13"
+												disabled="#{facturaMBean.consumidorFinal}"
+												value="#{facturaMBean.identificacionComprador}"
+												onkeypress="if (event.keyCode == 13) {return false; };">
+												<p:ajax event="blur"
+													listener="#{facturaMBean.presentarDialogoCliente}"
+													update="idDlgCliente" process="@this" partialSubmit="true"></p:ajax>
+											</p:inputText>
+
+											<p:commandButton icon="ui-icon-search"
+												disabled="#{facturaMBean.consumidorFinal}"
+												onclick="PF('dlgRazonSocial').show();"
+												actionListener="#{facturaMBean.limpiezaDatos}"
+												process="@this" partialSubmit="true"
+												update="pgDatosComprador,dialogoBusqueda:idTablaResultado" />
+
+											<h:outputText value="Tipo Documento" />
+											<h:outputText
+												value="#{facturaMBean.lTipoIdentificacion(facturaMBean.tipoIdentComprador)}"
+												id="txtTipoDocComprador" />
+
+											<h:outputLabel value="Razón Social/Nombre" />
+											<h:outputText value="#{facturaMBean.nombreComprador}"
+												id="txtNomComprador" />
+
+										</h:panelGrid>
+									</h:panelGrid>
+								</p:panel>
+
+
+								<p:panel id="ppFactExport"
+									visible="#{!facturaMBean.habilitaNormal}">
+									<h:panelGrid columns="1" id="pnGrFacturaExportacion">
+										<h:panelGrid columns="1" style="margin-bottom:10px"
+											cellpadding="5">
+
+											<h:panelGrid columns="5" style="margin-bottom:10px"
+												cellpadding="5" id="pgDatosExportador">
+												<p:selectOneMenu id="cbmTipoIdentExpt"
+													value="#{facturaMBean.tipoIdentCompradorExp}">
+													<f:selectItem itemLabel="IDENT EXTERIOR" itemValue="08" />
+												</p:selectOneMenu>
+
+
+												<p:inputText id="txtIdentCompradorExt" maxlength="20"
+													value="#{facturaMBean.identificacionCompradorExp}"
+													onkeypress="if (event.keyCode == 13) {return false; };">
+													<p:ajax event="blur"
+														update="ppFactExport,idTblDetAdicional,txtNomCompradorExt,:frmFactura:msgs"
+														process="@this"
+														listener="#{facturaMBean.obtenerDatosClienteExportacion}" />
+												</p:inputText>
+
+												<p:commandButton icon="ui-icon-search"
+													onclick="PF('dlgRazonSocial').show();"
+													actionListener="#{facturaMBean.limpiezaDatos}"
+													process="@this" partialSubmit="true"
+													update="pnGrFacturaExportacion,dialogoBusqueda:idTablaResultado" />
+
+												<h:outputLabel value="RAZÓN SOCIAL/NOMBRE" />
+												<p:inputText value="#{facturaMBean.nombreCompradorExp}"
+													disabled="false" maxlength="120" id="txtNomCompradorExt"
+													size="53" />
+											</h:panelGrid>
+										</h:panelGrid>
+
+										<h:panelGrid columns="6" id="pgInfoTransporte">
+
+											<h:outputLabel value="IncoTermFactura: " />
+											<p:inputText maxlength="3" size="3"
+												value="#{facturaMBean.incoTermFactura}" disabled="false"
+												readonly="true" />
+											<h:outputLabel value="lugarIncoTerm: " />
+											<p:inputText maxlength="50" size="10"
+												value="#{facturaMBean.lugarIncoTerm}" disabled="false"
+												readonly="true" />
+
+											<h:outputLabel value="Pais Origen: " />
+											<p:selectOneMenu id="cbmPaisesOrg"
+												value="#{facturaMBean.paisOrigen}">
+												<f:selectItem itemLabel="Seleccione Uno" itemValue="-" />
+												<f:selectItems value="#{facturaMBean.paicesOrigen}" />
+											</p:selectOneMenu>
+
+											<h:outputLabel value="Puerto Embarque " />
+											<p:inputText maxlength="50" size="10"
+												value="#{facturaMBean.puertoEmbarque}" />
+
+
+
+											<h:outputLabel value="Puerto Destino: " />
+											<p:inputText maxlength="50" size="10"
+												value="#{facturaMBean.puertoDestino}" />
+
+
+											<h:outputLabel value="Pais Destino " />
+											<p:selectOneMenu id="cbmPaisesDest"
+												value="#{facturaMBean.paisDestino}">
+												<f:selectItem itemLabel="Seleccione Uno" itemValue="-" />
+												<f:selectItems value="#{facturaMBean.paicesDestino}" />
+											</p:selectOneMenu>
+
+											<h:outputLabel value="Pais Adquisicion: " />
+											<p:selectOneMenu id="cbmPaisesAdq"
+												value="#{facturaMBean.paisAdquisicion}">
+												<f:selectItem itemLabel="Seleccione Uno" itemValue="-" />
+												<f:selectItems value="#{facturaMBean.paicesAdquisicion}" />
+											</p:selectOneMenu>
+
+											<h:outputLabel value="incoTermTotalSinImpuestos: " />
+											<p:inputText maxlength="3" size="3" disabled="true"
+												readonly="true"
+												value="#{facturaMBean.incoTermTotalSinImpuestos}" />
+
+										</h:panelGrid>
+
+									</h:panelGrid>
+
+								</p:panel>
+							</h:panelGrid>
+
+						</fieldset>
+						<fieldset>
+							<legend
+								style="font-family: Verdana, Arial, sans-serif; font-size: 11px;">Detalle
+								de la factura</legend>
+							<div align="right">
+								<p:commandButton icon="ui-icon-plus" partialSubmit="true"
+									process="@this" onclick="PF('pro').show();"
+									actionListener="#{facturaMBean.limpiarValores}"
+									update=":frmFactura:pIngPro, dialogoBusqueda:idTablaResultado" />
+							</div>
+							<p:dataTable value="#{facturaMBean.detalleFactura}"
+								id="idTblProductos" var="detalle"
+								emptyMessage="No existen detalles cargados">
+								<p:column width="70" headerText="Cantidad">
+									<center>
+										<h:outputText process="@this" size="3"
+											value="#{detalle.cantidad}" />
+									</center>
+								</p:column>
+
+								<p:column width="30" headerText="Unidad Medida">
+									<center>
+										<h:outputText value="#{detalle.unidadMedida}" />
+									</center>
+								</p:column>
+
+								<p:column width="68" headerText="Código Principal"
+									style="text-align:center;">
+									<center>
+										<h:outputText size="6" value="#{detalle.codigoPrincipal}" />
+									</center>
+								</p:column>
+
+								<p:column width="60" headerText="Código Auxiliar">
+									<center>
+										<h:outputText size="6" value="#{detalle.codigoAuxiliar}" />
+									</center>
+								</p:column>
+
+								<p:column width="210" headerText="Descripción">
+									<center>
+										<h:outputText size="50" value="#{detalle.descripcion}" />
+									</center>
+								</p:column>
+
+
+								<p:column headerText="Precio Unitario">
+									<center>
+										<p:inputText id="txtprecio" size="19" disabled="true"
+											value="#{detalle.precioUnitario}">
+											<f:convertNumber type="number" maxIntegerDigits="15"
+												maxFractionDigits="6" groupingUsed="false" locale="en-US" />
+										</p:inputText>
+									</center>
+								</p:column>
+
+								<p:column width="85" headerText="Descuento">
+									<center>
+										<h:outputText value="#{detalle.descuento}">
+											<f:convertNumber type="number" maxIntegerDigits="15"
+												maxFractionDigits="6" groupingUsed="false" locale="en-US" />
+										</h:outputText>
+									</center>
+								</p:column>
+
+								<p:column width="85" headerText="IVA">
+									<center>
+										<h:outputText value="#{detalle.valorIva}">
+											<f:convertNumber type="number" maxIntegerDigits="15"
+												maxFractionDigits="6" groupingUsed="false" locale="en-US" />
+										</h:outputText>
+									</center>
+								</p:column>
+
+								<p:column headerText="ICE">
+									<center>
+										<h:outputText value="#{detalle.valorIce}">
+											<f:convertNumber type="number" maxIntegerDigits="15"
+												maxFractionDigits="6" groupingUsed="false" locale="en-US" />
+										</h:outputText>
+									</center>
+								</p:column>
+
+
+								<p:column headerText="Valor Total">
+									<center>
+										<h:outputText value="#{detalle.total}">
+											<f:convertNumber type="number" maxIntegerDigits="15"
+												maxFractionDigits="6" groupingUsed="false" locale="en-US" />
+										</h:outputText>
+									</center>
+								</p:column>
+								<!--  	<p:column headerText="B.I. IRBPNR">
+						<center>
+							<h:outputText value="#{detalle.imponibleIRBPNR}">
+								<f:convertNumber pattern="#0.00" />
+							</h:outputText>
+						</center>
+					</p:column>
+					<p:column headerText="Valor IRBPNR">
+						<center>
+							<h:outputText value="#{detalle.valorIRBPNR}">
+								<f:convertNumber pattern="#0.00" />
+							</h:outputText>
+						</center>
+					</p:column>-->
+
+								<p:column headerText="Elminar" style="text-align:center;">
+									<p:commandButton icon="ui-icon-closethick"
+										actionListener="#{facturaMBean.eliminarFila}"
+										update=":frmFactura:idTblProductos , :frmFactura:pnlGrTotales">
+										<f:attribute name="PERSONA" value="#{detalle}"></f:attribute>
+									</p:commandButton>
+								</p:column>
+
+							</p:dataTable>
+						</fieldset>
+
+						<fieldset>
+							<legend
+								style="font-family: Verdana, Arial, sans-serif; font-size: 11px;">Detalle
+								del reembolso</legend>
+							<p:panel visible="#{facturaMBean.isFacturraReembolzo}"
+								id="pnlLengReem1">
+								<div align="right">
+									<p:commandButton icon="ui-icon-plus" partialSubmit="true"
+										process="@this" onclick="PF('rem').show();"></p:commandButton>
+								</div>
+								<p:dataTable value="#{facturaMBean.listaDetalleReembolzo}"
+									id="idTblDetReem" var="reembolzo"
+									emptyMessage="No existen detalles de reembolzos ingresados">
+									<p:column width="90" headerText="Identificación">
+										<center>
+											<h:outputText process="@this" size="3"
+												value="#{reembolzo.identificacionProveedorReembolso}" />
+										</center>
+									</p:column>
+									<p:column width="60" headerText="Establecimiento">
+										<center>
+											<h:outputText size="6" value="#{reembolzo.estabDocReembolso}" />
+										</center>
+									</p:column>
+									<p:column width="60" headerText="Punto de emision">
+										<center>
+											<h:outputText size="6"
+												value="#{reembolzo.ptoEmiDocReembolso}" />
+										</center>
+									</p:column>
+									<p:column width="80" headerText="Secuencia">
+										<center>
+											<h:outputText size="6"
+												value="#{reembolzo.secuencialDocReembolso}" />
+										</center>
+									</p:column>
+									<p:column width="150"
+										headerText="Fecha emision documento reembolso">
+										<center>
+											<h:outputText size="6"
+												value="#{reembolzo.fechaEmisionDocReembolso}" />
+										</center>
+									</p:column>
+
+									<p:column width="410" headerText="Autroización">
+										<center>
+											<h:outputText size="50"
+												value="#{reembolzo.numeroautorizacionDocReemb}" />
+										</center>
+									</p:column>
+
+									<p:column headerText="Elminar" style="text-align:center;">
+										<p:commandButton icon="ui-icon-closethick"
+											actionListener="#{facturaMBean.eliminarReembolzo}"
+											update=":frmFactura:idTblDetReem">
+											<f:attribute name="REEMB" value="#{reembolzo}"></f:attribute>
+										</p:commandButton>
+									</p:column>
+
+								</p:dataTable>
+							</p:panel>
+							<p:panel visible="#{!facturaMBean.isFacturraReembolzo}"
+								id="pnlLengReem2">
+								<strong> Esta información solo aplica para facturas de
+									reembolso</strong>
+							</p:panel>
+						</fieldset>
+
+
+
+						<table width="100%">
+							<tr>
+								<td width="50%">
+									<fieldset>
+										<legend
+											style="font-family: Verdana, Arial, sans-serif; font-size: 11px;">Datos
+											Adicionales</legend>
+										<div align="right">
+											<p:commandButton icon="ui-icon-plus" partialSubmit="true"
+												process="@this" onclick="PF('det').show();"></p:commandButton>
+										</div>
+										<p:dataTable value="#{facturaMBean.detallesAdicionales}"
+											id="idTblDetAdicional" var="adicional"
+											emptyMessage="No existen detalles adicionales">
+											<p:column width="50" headerText="Nombre">
+												<p:outputLabel size="3" value="#{adicional.nombre}" />
+											</p:column>
+											<p:column width="50" headerText="Valor">
+												<p:inputText size="60" value="#{adicional.descripcion}"
+													onkeypress="if (event.keyCode == 13) {return false; };"
+													disabled="#{!adicional.editable}">
+													<p:ajax event="change"
+														listener="#{facturaMBean.guardarDetalleAdicional}"
+														update="idTblDetAdicional"></p:ajax>
+
+
+												</p:inputText>
+											</p:column>
+
+											<p:column width="4">
+												<p:commandButton icon="ui-icon-closethick"
+													actionListener="#{facturaMBean.eliminarFilaAdicional}"
+													update=":frmFactura:idTblDetAdicional"
+													disabled="#{adicional.nombre.equals('USUARIO')?'true':adicional.nombre.equals('DIRECCION')?'true':
+											adicional.nombre.equals('EMAILCLIENTE')?'true':'false'}">
+													<f:attribute name="ADICIONALDET" value="#{adicional}" />
+												</p:commandButton>
+											</p:column>
+
+
+										</p:dataTable>
+									</fieldset>
+
+									<fieldset>
+										<legend
+											style="font-family: Verdana, Arial, sans-serif; font-size: 11px;">Pagos</legend>
+
+										<p:panel id="ppPagosExpor">
+
+											<div align="right">
+												<p:commandButton icon="ui-icon-plus" partialSubmit="true"
+													process="@this" onclick="PF('pag').show();"></p:commandButton>
+											</div>
+
+											<p:dataTable value="#{facturaMBean.listaPagos}"
+												id="idTblPagos" var="pagos" emptyMessage="No existen pagos">
+												<p:column width="50" headerText="Forma de pago">
+													<p:outputLabel size="3" value="#{pagos.formaPago}" />
+												</p:column>
+												<p:column width="50" headerText="Total">
+													<p:outputLabel size="3" value="#{pagos.total}" />
+												</p:column>
+
+												<p:column width="50" headerText="Plazo">
+													<p:outputLabel size="3" value="#{pagos.plazo}" />
+												</p:column>
+
+												<p:column width="50" headerText="Unidad de tiempo">
+													<p:outputLabel size="3" value="#{pagos.unidadTiempo}" />
+												</p:column>
+
+												<p:column width="50" headerText="Eliminar"
+													style="text-align:center;">
+													<p:commandButton icon="ui-icon-closethick"
+														actionListener="#{facturaMBean.eliminarPago}"
+														update=":frmFactura:idTblPagos">
+														<f:attribute name="PAGOEXP" value="#{pagos}"></f:attribute>
+													</p:commandButton>
+												</p:column>
+											</p:dataTable>
+										</p:panel>
+									</fieldset>
+
+									<fieldset>
+										<legend
+											style="font-family: Verdana, Arial, sans-serif; font-size: 11px;">Rubros</legend>
+
+										<p:panel id="ppRubrosFactura">
+
+											<div align="right">
+												<p:commandButton icon="ui-icon-plus" partialSubmit="true"
+													process="@this" onclick="PF('rubroDlg').show();"></p:commandButton>
+											</div>
+
+											<p:dataTable value="#{facturaMBean.listaRubros}"
+												id="idTblRubros" var="rubros"
+												emptyMessage="No existen rubros de terceros">
+												<p:column width="50" headerText="Concepto">
+													<p:outputLabel size="3" value="#{rubros.concepto}" />
+												</p:column>
+												<p:column width="50" headerText="Valor">
+													<p:outputLabel size="3" value="#{rubros.valor}" />
+												</p:column>
+
+												<p:column width="50" headerText="Eliminar"
+													style="text-align:center;">
+													<p:commandButton icon="ui-icon-closethick"
+														actionListener="#{facturaMBean.eliminarRubro}"
+														update=":frmFactura:idTblRubros">
+														<f:attribute name="RUBROSFACT" value="#{rubros}"></f:attribute>
+													</p:commandButton>
+												</p:column>
+											</p:dataTable>
+										</p:panel>
+									</fieldset>
+
+									<fieldset>
+										<legend
+											style="font-family: Verdana, Arial, sans-serif; font-size: 11px;">Acciones</legend>
+										<center>
+											<h:panelGrid columns="3" cellpadding="5">
+												<p:commandButton action="#{facturaMBean.calcularTotales}"
+													value="Calcular"
+													update=":frmFactura:msgs , :frmFactura:pnlGrTotales" />
+												<p:commandButton action="#{facturaMBean.generarXml}"
+													value="Guardar"
+													update=":frmFactura:msgs , :frmFactura:outRazonSocial, :frmFactura:cmbEmiEstab ,
+										 :frmFactura:cbmRuc,  :frmFactura:ppRubrosFactura, :frmFactura:ppPagosExpor, 
+										  :frmFactura:pnlGrTotales , :frmFactura:idTblProductos , :frmFactura:ppFactNormal, :frmFactura:idTblDetAdicional" />
+												<p:commandButton action="#{facturaMBean.reset}"
+													value="Nuevo" update=":frmFactura" />
+											</h:panelGrid>
+										</center>
+									</fieldset> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
+									<br />
+								</td>
+								<td width="50%">
+									<fieldset>
+										<h:panelGrid columns="2" cellpadding="5" id="pnlGrTotales"
+											style="font-family:Verdana, Arial, sans-serif;font-size:11px;">
+											<h:outputText value="SUBTOTAL SIN IMPUESTOS" />
+											<h:outputLabel value="#{facturaMBean.totalSinImpuestos}">
+												<f:convertNumber type="number" maxIntegerDigits="15"
+													maxFractionDigits="2" minFractionDigits="2"
+													groupingUsed="false" locale="en-US" />
+											</h:outputLabel>
+											<h:outputText
+												value="SUB TOTAL GRAVADO #{facturaMBean.porcentajeIvaSeleccionado}%" />
+											<h:outputLabel value="#{facturaMBean.totalIva12}">
+												<f:convertNumber type="number" maxIntegerDigits="15"
+													maxFractionDigits="2" minFractionDigits="2"
+													groupingUsed="false" locale="en-US" />
+
+											</h:outputLabel>
+											<h:outputText value="SUBTOTAL 0%" />
+											<h:outputLabel value="#{facturaMBean.totalIva0}">
+												<f:convertNumber type="number" maxIntegerDigits="15"
+													maxFractionDigits="2" minFractionDigits="2"
+													groupingUsed="false" locale="en-US" />
+
+											</h:outputLabel>
+											<h:outputText value="SUBTOTAL NO OBJETO AL IVA" />
+											<h:outputLabel value="#{facturaMBean.totalIvaNoSujeto}">
+												<f:convertNumber type="number" maxIntegerDigits="15"
+													maxFractionDigits="2" minFractionDigits="2"
+													groupingUsed="false" locale="en-US" />
+
+											</h:outputLabel>
+											<h:outputText value="SUBTOTAL EXENTO AL IVA" />
+											<h:outputLabel value="#{facturaMBean.totalIvaExcento}">
+												<f:convertNumber type="number" maxIntegerDigits="15"
+													maxFractionDigits="2" minFractionDigits="2"
+													groupingUsed="false" locale="en-US" />
+											</h:outputLabel>
+											<h:outputText value="TOTAL DESCUENTO" />
+											<h:outputText value="#{facturaMBean.totalDescuento}"
+												readonly="true">
+												<f:convertNumber type="number" maxIntegerDigits="15"
+													maxFractionDigits="2" minFractionDigits="2"
+													groupingUsed="false" locale="en-US" />
+
+											</h:outputText>
+											<h:outputText value="VALOR ICE" />
+											<h:outputText value="#{facturaMBean.totalIce}">
+												<f:convertNumber type="number" maxIntegerDigits="15"
+													maxFractionDigits="2" minFractionDigits="2"
+													groupingUsed="false" locale="en-US" />
+											</h:outputText>
+											<h:outputText value="VALOR IRBPNR" />
+											<h:outputLabel value="#{facturaMBean.totalIRBPNR}">
+												<f:convertNumber type="number" maxIntegerDigits="15"
+													maxFractionDigits="2" minFractionDigits="2"
+													groupingUsed="false" locale="en-US" />
+
+											</h:outputLabel>
+											<h:outputText
+												value="IVA #{facturaMBean.porcentajeIvaSeleccionado}%" />
+											<h:outputText value="#{facturaMBean.valorIva12}">
+												<f:convertNumber type="number" maxIntegerDigits="15"
+													maxFractionDigits="2" minFractionDigits="2"
+													groupingUsed="false" locale="en-US" />
+
+											</h:outputText>
+											<h:panelGrid columns="2" cellpadding="5" id="pnlGrPropina">
+												<p:selectBooleanCheckbox style="visibility: hidden"
+													value="#{facturaMBean.aplicaPropina}">
+													<p:ajax update=":frmFactura:outPropina"
+														listener="#{facturaMBean.acticaDesactivaPropina}" />
+												</p:selectBooleanCheckbox>
+												<h:outputText style="visibility: hidden" value="PROPINA 10%" />
+											</h:panelGrid>
+
+											<p:outputLabel style="visibility: hidden"
+												value="#{facturaMBean.valorPropina}" id="outPropina">
+
+											</p:outputLabel>
+
+											<h:outputText value="VALOR TOTAL" />
+											<h:outputText value="#{facturaMBean.importeTotal}"
+												id="outImporteTotal">
+												<f:convertNumber type="number" maxIntegerDigits="15"
+													maxFractionDigits="2" minFractionDigits="2"
+													groupingUsed="false" locale="en-US" />
+											</h:outputText>
+
+											<h:panelGrid rendered="false">
+												<h:panelGrid columns="2" cellpadding="5"
+													id="pnlGrCompensacion" rendered="true">
+													<p:selectBooleanCheckbox
+														value="#{facturaMBean.aplicaCompensacion}">
+														<p:ajax
+															update=":frmFactura:outCompensacion , :frmFactura:outImporteTotal, :frmFactura:msgs , :frmFactura:pnlGrTotales"
+															listener="#{facturaMBean.calcularTotales}" />
+													</p:selectBooleanCheckbox>
+													<h:outputText value="Descuento Solidario 2% " />
+												</h:panelGrid>
+
+												<p:outputLabel value="#{facturaMBean.totalCompensacion}"
+													id="outCompensacion">
+
+												</p:outputLabel>
+
+											</h:panelGrid>
+
+
+										</h:panelGrid>
+									</fieldset>
+								</td>
+							</tr>
+						</table>
+						<p:remoteCommand name="frmFactura" autoRun="true"
+							action="#{facturaMBean.init()}"
+							update="frmFactura:cbmRuc, frmFactura:outRazonSocial, frmFactura:cmbEmiEstab, 
+		                            frmFactura:rdbClasesIdent, frmFactura:pgDatosComprador,  frmFactura:rdbTipoFactura ,  frmFactura:idTblProductos, frmFactura:pnlGrTotales, 
+									frmFactura:ppRubrosFactura,  frmFactura:ppPagosExpor,   frmFactura:idTblDetAdicional" />
+
+
+						<p:dialog id="idDlgCliente" widgetVar="idDlgCliente"
+							header="Datos Cliente" resizable="false" closable="false">
+							<p:growl id="mensajesCliente"></p:growl>
+							<p:panel id="pIngCli">
+								<h:panelGrid columns="2">
+									<h:outputLabel value="Tipo Identificación: " />
+									<p:selectOneMenu filter="true" id="cmbTipoIdentificacion"
+										value="#{facturaMBean.lClienteSuscriptor.lTipoIdentificacion}">
+										<f:selectItem itemLabel="Cédula" itemValue="05" />
+										<f:selectItem itemLabel="Ruc" itemValue="04" />
+										<f:selectItem itemLabel="Pasaporte" itemValue="06" />
+										<f:selectItem itemLabel="Ident Exterior" itemValue="08" />
+									</p:selectOneMenu>
+									<h:outputLabel value="Identificación: " />
+									<p:inputText
+										value="#{facturaMBean.lClienteSuscriptor.lIdentificacion}"></p:inputText>
+									<h:outputLabel value="Nombre/Razón Social: " />
+									<p:inputText
+										value="#{facturaMBean.lClienteSuscriptor.lRazonSocial}"></p:inputText>
+									<h:outputLabel value="Dirección: " />
+									<p:inputTextarea
+										value="#{facturaMBean.lClienteSuscriptor.lDireccion}"></p:inputTextarea>
+									<h:outputLabel value="Emails Factura: " />
+									<p:inputTextarea
+										value="#{facturaMBean.lClienteSuscriptor.lEmailsFacturas}"
+										title="Debe ingresar los emails, separados por ;"></p:inputTextarea>
+									<p:commandButton value="Aceptar"
+										actionListener="#{facturaMBean.actualizarClienteSuscriptor}"
+										process="pIngCli, mensajesCliente"
+										update="frmFactura:txtIdentCompradorExt, frmFactura:txtNomCompradorExt,frmFactura:msgs, frmFactura:txtIdentComprador, frmFactura:txtNomComprador, frmFactura:idTblDetAdicional, frmFactura:txtTipoDocComprador"></p:commandButton>
+								</h:panelGrid>
+
+							</p:panel>
+						</p:dialog>
+
+						<p:dialog id="idDlgPro" widgetVar="pro"
+							header="Ingreso de Productos" resizable="false">
+
+							<p:growl id="mensajesProdu"></p:growl>
+							<p:panel id="pIngPro">
+								<h:panelGrid columns="2">
+
+									<h:outputText value="Código Principal" />
+									<h:panelGrid columns="2">
+										<p:selectOneMenu filter="true" id="cmbTipoProducto"
+											value="#{facturaMBean.producto.codigoPrincipal}"
+											filterMatchMode="contains">
+											<f:selectItem itemLabel="Seleccione Producto" itemValue="-1" />
+											<f:selectItems value="#{facturaMBean.tiposProductos}" />
+
+											<p:ajax event="change"
+												update="idCodigoAux,desc,prec,tipoIVA,tipoICE,uniMed"
+												process="@this"
+												listener="#{facturaMBean.setearProductoSeleccionado}" />
+										</p:selectOneMenu>
+
+									</h:panelGrid>
+
+									<h:outputText value="Código Auxiliar" />
+									<p:inputText id="idCodigoAux" size="19"
+										value="#{facturaMBean.producto.codigoAuxiliar}"
+										readonly="true" />
+
+									<h:outputText value="Descripción" />
+									<p:inputText readonly="false" id="desc" size="60"
+										value="#{facturaMBean.producto.descripcion}" />
+
+									<h:outputLabel value="Cantidad " />
+									<p:spinner value="#{facturaMBean.producto.cantidad}" min="0"
+										max="900000000000000000" stepFactor="0.25" id="cantDet" />
+
+									<h:outputText value="Unidad Medida" />
+									<p:inputText readonly="false" id="uniMed" size="60"
+										value="#{facturaMBean.producto.unidadMedida}" />
+
+									<h:outputText value="Precio Unitario" />
+									<p:spinner id="prec"
+										value="#{facturaMBean.producto.precioUnitario}" min="0"
+										max="90000000000" stepFactor="0.25" />
+
+									<h:outputText value="Total Descuento Producto:" />
+									<p:spinner id="des" value="#{facturaMBean.producto.descuento}"
+										min="0" max="90000000000" stepFactor="0.1">
+										<p:ajax event="blur" update="@this, mensajesProdu"
+											process="prec, cantDet, des"
+											listener="#{facturaMBean.validarDescuento}" />
+									</p:spinner>
+
+
+									<h:outputText value="Tipo Iva:" />
+									<p:inputText id="tipoIVA" size="19" readonly="true"
+										value="#{facturaMBean.lDescripcionIVA}" />
+
+									<h:outputText value="Tipo Ice:" />
+									<p:inputText id="tipoICE" size="19" readonly="true"
+										value="#{facturaMBean.lDescripcionICE}" />
+
+									<p:commandButton value="Aceptar"
+										actionListener="#{facturaMBean.guardarDetalleFactura}"
+										update=":frmFactura:idTblProductos, :frmFactura:msgs, :frmFactura:idDlgPro, :frmFactura:pnlGrTotales" />
+									<p:commandButton value="Cancelar"
+										oncomplete="PF('pro').hide();" />
+
+								</h:panelGrid>
+							</p:panel>
+						</p:dialog>
+
+
+
+						<p:dialog id="idDlgDet" widgetVar="det"
+							header="Ingreso Detalle Adicional" resizable="false">
+							<p:panel id="pIngDet">
+								<h:panelGrid columns="2">
+									<h:outputText value="Nombre" />
+									<p:inputText value="#{facturaMBean.adicional.nombre}" />
+									<h:outputText value="Valor" />
+									<p:inputText value="#{facturaMBean.adicional.descripcion}" />
+
+									<p:commandButton value="Aceptar"
+										action="#{facturaMBean.guardarDetalleAdicional}"
+										process="pIngDet"
+										update=":frmFactura:idTblDetAdicional , :frmFactura:idDlgDet"
+										oncomplete="PF('det').hide();" />
+									<p:commandButton value="Cancelar"
+										oncomplete="PF('det').hide();"></p:commandButton>
+
+								</h:panelGrid>
+							</p:panel>
+						</p:dialog>
+
+
+						<p:dialog id="idDlgTabIce" widgetVar="iceTab"
+							header="Informacion de Impuesto ICE" resizable="true" width="750"
+							height="500" position="center">
+							<p:panel id="pIngIce">
+								<h:panelGrid columns="1" style="alingth:center">
+									<p:dataTable value="#{facturaMBean.listaIces}" id="idTblIce"
+										var="ices">
+										<p:column width="5" headerText="Codigo"
+											style="text-align:center;">
+											<h:outputText process="@this" size="5" value="#{ices.codigo}" />
+										</p:column>
+										<p:column width="70" headerText="Descripcion"
+											style="text-align:center;">
+											<h:outputText process="@this" size="200"
+												value="#{ices.descripcion}" />
+										</p:column>
+									</p:dataTable>
+
+
+								</h:panelGrid>
+
+
+							</p:panel>
+
+						</p:dialog>
+
+						<p:dialog id="idDlgTabProducto" widgetVar="productoTab"
+							header="Informacion de Productos" resizable="true" width="750"
+							height="300" position="center">
+							<p:panel id="pIngProducto">
+								<h:panelGrid columns="1" style="alingth:center">
+									<p:dataTable value="#{facturaMBean.listaProductos}"
+										id="idTblProducto" var="producto">
+										<p:column width="5" headerText="Código Principal"
+											style="text-align:center;">
+											<h:outputText process="@this" size="5"
+												value="#{producto.codigoPrincipal}" />
+										</p:column>
+										<p:column width="70" headerText="Descripción"
+											style="text-align:center;">
+											<h:outputText process="@this" size="200"
+												value="#{producto.descripcion}" />
+										</p:column>
+
+										<p:column width="70" headerText="Precio Unitario"
+											style="text-align:center;">
+											<h:outputText process="@this" size="200"
+												value="#{producto.precioUnitario}" />
+										</p:column>
+									</p:dataTable>
+								</h:panelGrid>
+							</p:panel>
+						</p:dialog>
+
+						<p:dialog id="idDlgTabRem" widgetVar="rem"
+							header="Detalle de Reembolso" resizable="true" width="450"
+							height="440" position="center">
+							<p:panel id="pIngRem">
+								<h:panelGrid columns="1">
+									<h:panelGrid columns="2">
+										<p:outputLabel value="Tipo de identificación proveedor" />
+
+										<p:selectOneMenu id="cbmTipoIdentRem"
+											value="#{facturaMBean.detalleReembolzo.tipoIdentificacionProveedorReembolso}">
+											<f:selectItem itemLabel="CEDULA" itemValue="05" />
+											<f:selectItem itemLabel="RUC" itemValue="04" />
+											<f:selectItem itemLabel="PASAPORTE" itemValue="06" />
+											<f:selectItem itemLabel="CONSUMIDOR FINAL" itemValue="07" />
+											<f:selectItem itemLabel="IDENTIFICACION DEL EXTERIOR"
+												itemValue="08" />
+										</p:selectOneMenu>
+
+										<p:outputLabel value="Identificación proveedor" />
+										<p:inputText
+											value="#{facturaMBean.detalleReembolzo.identificacionProveedorReembolso}" />
+
+										<p:outputLabel value="Pais pago proveedor" />
+										<p:selectOneMenu
+											value="#{facturaMBean.detalleReembolzo.codPaisPagoProveedorReembolso}">
+											<f:selectItems value="#{facturaMBean.paicesProveedor}"></f:selectItems>
+										</p:selectOneMenu>
+
+										<p:outputLabel value="Tipo proveedor" />
+
+										<p:selectOneMenu id="cbmTipoProvRem"
+											value="#{facturaMBean.detalleReembolzo.tipoProveedorReembolso}">
+											<f:selectItem itemLabel="PERSONA NATURAL" itemValue="01" />
+											<f:selectItem itemLabel="SOCIEDAD" itemValue="02" />
+										</p:selectOneMenu>
+
+										<p:outputLabel value="Codigo documento reembolso" />
+										<p:selectOneMenu id="codDocRe"
+											value="#{facturaMBean.detalleReembolzo.codDocReembolso}">
+											<f:selectItems
+												value="#{facturaMBean.mbGeneral.listaDocumentosMod}"></f:selectItems>
+										</p:selectOneMenu>
+
+										<p:outputLabel value="Documento reembolso" />
+										<h:panelGrid columns="5" id="pngDocModRemb">
+											<p:inputMask mask="999"
+												value="#{facturaMBean.detalleReembolzo.estabDocReembolso}"
+												size="4" maxlength="3" />
+
+											<p:outputLabel value="-" />
+											<p:inputMask mask="999"
+												value="#{facturaMBean.detalleReembolzo.ptoEmiDocReembolso}"
+												size="4" maxlength="3" />
+
+											<p:outputLabel value="-" />
+											<p:inputText
+												value="#{facturaMBean.detalleReembolzo.secuencialDocReembolso}"
+												size="13" maxlength="9" />
+
+										</h:panelGrid>
+
+										<p:outputLabel value="Fecha emision documento reembolso" />
+										<p:calendar id="buttonRemFeEm"
+											value="#{facturaMBean.fechaReembolzo}" showOn="button"
+											readonlyInput="true" pattern="dd/MM/yyyy" />
+
+										<p:outputLabel value="Numero autorizacion" />
+										<p:inputText
+											value="#{facturaMBean.detalleReembolzo.numeroautorizacionDocReemb}"
+											onkeypress="return soloNumeros(event)" size="39"
+											maxlength="37" />
+
+									</h:panelGrid>
+									<p:panel id="pDetImpRem">
+										<h:panelGrid columns="1" style="alingth:center">
+											<div align="right">
+												<p:commandButton icon="ui-icon-plus" partialSubmit="true"
+													process="@this" onclick="PF('adetrem').show();" />
+											</div>
+											<p:dataTable value="#{facturaMBean.listaImpuestosReembolzo}"
+												id="idTbldetImpRem" var="detRem"
+												emptyMessage="No existen bases impuesto reembolso">
+												<p:column width="10" headerText="Base imponible">
+													<h:outputText process="@this" size="5"
+														value="#{detRem.baseImponibleReembolso}" />
+												</p:column>
+												<p:column width="10" headerText="tarifa">
+													<h:outputText process="@this" size="200"
+														value="#{detRem.tarifa}" />
+												</p:column>
+												<p:column width="10" headerText="impuesto">
+													<h:outputText process="@this" size="200"
+														value="#{detRem.impuestoReembolso}" />
+												</p:column>
+											</p:dataTable>
+										</h:panelGrid>
+									</p:panel>
+								</h:panelGrid>
+
+								<h:panelGrid columns="2">
+									<p:commandButton value="Aceptar"
+										actionListener="#{facturaMBean.guardaDetalleReebolzo}"
+										process="idDlgTabRem buttonRemFeEm"
+										update=":frmFactura:idTblDetReem , :frmFactura:idDlgTabRem"
+										oncomplete="PF('rem').hide();" />
+									<p:commandButton value="Cancelar"
+										oncomplete="PF('rem').hide();"></p:commandButton>
+								</h:panelGrid>
+
+							</p:panel>
+
+						</p:dialog>
+
+						<p:dialog id="idDlgDetRem" widgetVar="adetrem"
+							header="Detalle impuesto reembolso" resizable="true" width="400"
+							height="150" position="center">
+							<p:panel id="pDetImpRemIngr">
+								<h:panelGrid columns="2" style="alingth:center">
+									<p:outputLabel value="Base imponible: " />
+									<p:inputText value="#{facturaMBean.baseImponibleImpRem}" />
+
+									<p:outputLabel value="Impuesto: " />
+									<p:selectOneMenu value="#{facturaMBean.detalleImpReemb.codigo}">
+										<f:selectItem itemLabel="Seleccione uno" itemValue="-" />
+										<f:selectItem itemLabel="IVA" itemValue="2" />
+										<f:selectItem itemLabel="ICE" itemValue="3" />
+										<p:ajax event="change" update=":frmFactura:cmbRemImpCoPor"
+											listener="#{facturaMBean.llenaListaImpuestosReem}" />
+									</p:selectOneMenu>
+
+									<p:outputLabel value="Porcentaje: " />
+									<p:selectOneMenu
+										value="#{facturaMBean.detalleImpReemb.codigoPorcentaje}"
+										id="cmbRemImpCoPor">
+										<f:selectItem itemLabel="Seleccione uno" itemValue="-" />
+										<f:selectItems value="#{facturaMBean.listaImpuestosReem}" />
+										<p:ajax event="change" update=":frmFactura:outTarRemDetImp"
+											listener="#{facturaMBean.llenaValorTarifa}" />
+									</p:selectOneMenu>
+
+									<p:outputLabel value="Tarifa:  " />
+									<p:outputLabel
+										value="#{facturaMBean.detalleImpReemb.tarifa} %  "
+										id="outTarRemDetImp" />
+
+									<p:commandButton value="Aceptar"
+										action="#{facturaMBean.guardarImpuestoReembolzo}"
+										process="idDlgDetRem"
+										update=":frmFactura:idTbldetImpRem , :frmFactura:idDlgDetRem "
+										oncomplete="PF('adetrem').hide();" />
+									<p:commandButton value="Cancelar"
+										oncomplete="PF('adetrem').hide();"></p:commandButton>
+
+								</h:panelGrid>
+
+
+							</p:panel>
+
+						</p:dialog>
+
+						<p:dialog id="idDlgPag" widgetVar="pag" header="Ingreso de pago"
+							resizable="false">
+							<p:panel id="pIngPag">
+								<h:panelGrid columns="2">
+									<h:outputText value="Forma de pago" />
+									<p:selectOneMenu value="#{facturaMBean.pago.formaPago}">
+										<f:selectItems value="#{facturaMBean.formasDePago}"></f:selectItems>
+									</p:selectOneMenu>
+
+									<h:outputText value="Total" />
+									<p:spinner id="idtotalPagos" value="#{facturaMBean.pago.total}"
+										stepFactor="0.25" />
+									<h:outputText value="Plazo" />
+									<p:inputText value="#{facturaMBean.pago.plazo}" maxlength="4"
+										size="4"
+										onkeypress="if (event.keyCode == 13) {return false; };" />
+
+									<h:outputText value="Unidad de tiempo" />
+									<p:selectOneMenu value="#{facturaMBean.pago.unidadTiempo}">
+										<f:selectItem itemLabel="DIAS" itemValue="DIAS" />
+										<f:selectItem itemLabel="MESES" itemValue="MESES" />
+										<f:selectItem itemLabel="AÑOS" itemValue="ANIOS" />
+									</p:selectOneMenu>
+
+									<p:commandButton value="Aceptar"
+										action="#{facturaMBean.guardaPago}" process="pIngPag"
+										update=":frmFactura:idTblPagos , :frmFactura:idDlgPag"
+										oncomplete="PF('pag').hide();" />
+									<p:commandButton value="Cancelar"
+										oncomplete="PF('pag').hide();"></p:commandButton>
+
+								</h:panelGrid>
+							</p:panel>
+						</p:dialog>
+
+
+						<p:dialog id="idDlgRubros" widgetVar="rubroDlg"
+							header="Ingreso de rubros" resizable="false">
+							<p:panel id="pIngRubro">
+								<h:panelGrid columns="2">
+									<h:outputText value="Concepto:" />
+									<p:inputText value="#{facturaMBean.rubro.concepto}"
+										maxlength="300" />
+
+									<h:outputText value="Valor:" />
+									<p:inputText value="#{facturaMBean.rubro.valor}" />
+
+									<p:commandButton value="Aceptar"
+										action="#{facturaMBean.guardaRubro}" process="pIngRubro"
+										update=":frmFactura:idTblRubros , :frmFactura:idDlgRubros"
+										oncomplete="PF('rubroDlg').hide();" />
+									<p:commandButton value="Cancelar"
+										oncomplete="PF('rubroDlg').hide();"></p:commandButton>
+								</h:panelGrid>
+							</p:panel>
+						</p:dialog>
+
+
+
+					</h:form>
+
+
+				</div>
+			</div>
+		</div>
+
+
+		<p:dialog header="Buscar por Razón Social" widgetVar="dlgRazonSocial"
+			height="250" position="center center" id="dlgRazonSocial"
+			closable="true" closeOnEscape="true" modal="true" appendTo="@(body)"
+			resizable="false" showEffect="clip" hideEffect="clip" width="450">
+			<h:form id="dialogoBusqueda">
+				<p:message for="rruc" id="txtMensaje" />
+				<h:panelGrid columns="3" id="idCriterios">
+					<h:outputText value="Razón Social:" />
+					<p:inputText value="#{facturaMBean.razonSocialBuscar}"
+						required="true" id="rruc"
+						requiredMessage="Ingrese el nombre de un cliente/proveedor" />
+					<p:commandButton icon="ui-icon-search"
+						actionListener="#{facturaMBean.consultaRazonSocial}"
+						process="idCriterios" partialSubmit="true"
+						update="frmFactura:txtIdentCompradorExt, frmFactura:txtIdentComprador,txtMensaje,idTablaResultado" />
+				</h:panelGrid>
+
+				<p:dataTable id="idTablaResultado"
+					value="#{facturaMBean.lListaClienteSuscriptor}" rows="5"
+					var="proveedores" paginatorPosition="bottom"
+					rowKey="#{proveedores.lIdentificacion}" selectionMode="single"
+					selection="#{facturaMBean.lClienteSuscriptorSeleccionado}"
+					paginator="true" emptyMessage="No se han encontrado registros">
+
+
+					<p:ajax event="rowSelect"
+						listener="#{facturaMBean.controladorEvento}"
+						update="frmFactura:txtTipoDocComprador, frmFactura:txtIdentCompradorExt, frmFactura:txtNomCompradorExt,frmFactura:msgs, frmFactura:txtIdentComprador, frmFactura:txtNomComprador, frmFactura:idTblDetAdicional"
+						oncomplete="PF('dlgRazonSocial').hide();" />
+
+					<p:column headerText="Razón Social"
+						style="width:100%; text-align:left;">
+						<h:outputText value="#{proveedores.lRazonSocial}" />
+					</p:column>
+
+					<p:column headerText=" No- Identificación"
+						style="width:100%; text-align:left;">
+						<h:outputText value="#{proveedores.lIdentificacion}" />
+					</p:column>
+
+
+				</p:dataTable>
+			</h:form>
+		</p:dialog>
+		<script type="text/javascript">  
+            function validarDialogo(xhr, status, args) { 
+	           if(args.validationFailed || !args.todocorrecto){
+	                   PF('pro').jq.effect("shake", {times:5}, 100);
+	               }else {   
+	                  PF('pro').hide();
+	                  $('#loginLink').fadeOut();   
+	               }   
+		    }    
+                    </script>
+	</ui:define>
+</ui:composition>

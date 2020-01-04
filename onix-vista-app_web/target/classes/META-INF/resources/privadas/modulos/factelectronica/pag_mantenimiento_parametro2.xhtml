@@ -1,0 +1,260 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/pag_principal_tmpl.xhtml">
+
+
+	<ui:define name="PANELES_PERSONALIZADOS">
+
+		<h:form>
+
+			<p:growl id="mensajeTransaccional"></p:growl>
+			<p:panel header="Parámetros clasificados por procesos">
+
+				<div class="ui-g ui-fluid dashboard">
+					<div class="ui-g-12 ui-md-6 ui-lg-4">
+						<div class="highlight-box">
+							<div class="initials"
+								style="background-color: #ef6262; color: white; font-size: 30px;">Proceso
+								Registro XML</div>
+							<div class="card">
+								<p:commandLink
+									actionListener="#{beanMantendorFactParametro.subirArchivo('REGISTRO_XML')}"
+									partialSubmit="true" process="@this"
+									update=":#{p:component('dialogoPropiedades')}"
+									oncomplete="PF('dialogoPropiedades').show();">
+									<span class="fa fa-cloud-upload"></span>
+									<span> Cargar Archivo</span>
+									<span class="count"> </span>
+								</p:commandLink>
+								<p:commandLink
+									actionListener="#{beanMantendorFactParametro.descargarArchivo('REGISTRO_XML')}"
+									ajax="false">
+									<span class="fa fa-cloud-download"></span>
+									<span> Descargar Archivo</span>
+									<span class="count"> </span>
+								</p:commandLink>
+								<p:commandLink
+									actionListener="#{beanMantendorFactParametro.verTabla('REGISTRO_XML')}"
+									partialSubmit="true" process="@this"
+									update=":#{p:component('dialogoMantenimiento')}"
+									oncomplete="PF('dialogoMantenimiento').show();">
+									<span class="fa fa-database"></span>
+									<span>Ver Tabla</span>
+									<span class="count"> </span>
+								</p:commandLink>
+							</div>
+						</div>
+					</div>
+					<div class="ui-g-12 ui-md-6 ui-lg-4">
+						<div class="highlight-box">
+							<div class="initials"
+								style="background-color: #007be5; color: white; font-size: 30px;">Proceso
+								Firma XML</div>
+							<div class="card">
+								<p:commandLink
+									actionListener="#{beanMantendorFactParametro.subirArchivo('FIRMA')}"
+									partialSubmit="true" process="@this"
+									update=":#{p:component('dialogoPropiedades')}"
+									oncomplete="PF('dialogoPropiedades').show();">
+									<span class="fa fa-cloud-upload"></span>
+									<span> Cargar Archivo</span>
+									<span class="count"> </span>
+								</p:commandLink>
+								<p:commandLink
+									actionListener="#{beanMantendorFactParametro.descargarArchivo('FIRMA')}"
+									ajax="false">
+									<span class="fa fa-cloud-download"></span>
+									<span> Descargar Archivo</span>
+									<span class="count"> </span>
+								</p:commandLink>
+								<p:commandLink
+									actionListener="#{beanMantendorFactParametro.verTabla('FIRMA')}"
+									partialSubmit="true" process="@this"
+									update=":#{p:component('dialogoMantenimiento')}"
+									oncomplete="PF('dialogoMantenimiento').show();">
+									<span class="fa fa-database"></span>
+									<span>Ver Tabla</span>
+									<span class="count"> </span>
+								</p:commandLink>
+							</div>
+						</div>
+					</div>
+					<div class="ui-g-12 ui-md-6 ui-lg-4">
+						<div class="highlight-box">
+							<div class="initials"
+								style="background-color: #20d077; color: white; font-size: 30px;">Proceso
+								Emisión</div>
+							<div class="card">
+								<p:commandLink
+									actionListener="#{beanMantendorFactParametro.subirArchivo('EMISION')}"
+									partialSubmit="true" process="@this"
+									update=":#{p:component('dialogoPropiedades')}"
+									oncomplete="PF('dialogoPropiedades').show();">
+									<span class="fa fa-cloud-upload"></span>
+									<span> Cargar Archivo</span>
+									<span class="count"> </span>
+								</p:commandLink>
+								<p:commandLink
+									actionListener="#{beanMantendorFactParametro.descargarArchivo('EMISION')}"
+									ajax="false">
+									<span class="fa fa-cloud-download"></span>
+									<span> Descargar Archivo</span>
+									<span class="count"> </span>
+								</p:commandLink>
+								<p:commandLink
+									actionListener="#{beanMantendorFactParametro.verTabla('EMISION')}"
+									partialSubmit="true" process="@this"
+									update=":#{p:component('dialogoMantenimiento')}"
+									oncomplete="PF('dialogoMantenimiento').show();">
+									<span class="fa fa-database"></span>
+									<span>Ver Tabla</span>
+									<span class="count"> </span>
+								</p:commandLink>
+							</div>
+						</div>
+					</div>
+
+					<div class="ui-g-12 ui-md-6 ui-lg-4">
+						<div class="highlight-box">
+							<div class="initials"
+								style="background-color: orange; color: white; font-size: 30px;">Proceso
+								Autorización</div>
+							<div class="card">
+								<p:commandLink
+									actionListener="#{beanMantendorFactParametro.subirArchivo('AUTORIZACION')}"
+									partialSubmit="true" process="@this"
+									update=":#{p:component('dialogoPropiedades')}"
+									oncomplete="PF('dialogoPropiedades').show();">
+									<span class="fa fa-cloud-upload"></span>
+									<span> Cargar Archivo</span>
+									<span class="count"> </span>
+								</p:commandLink>
+								<p:commandLink
+									actionListener="#{beanMantendorFactParametro.descargarArchivo('AUTORIZACION')}"
+									ajax="false">
+									<span class="fa fa-cloud-download"></span>
+									<span> Descargar Archivo</span>
+									<span class="count"> </span>
+								</p:commandLink>
+								<p:commandLink
+									actionListener="#{beanMantendorFactParametro.verTabla('AUTORIZACION')}"
+									partialSubmit="true" process="@this"
+									update=":#{p:component('dialogoMantenimiento')}"
+									oncomplete="PF('dialogoMantenimiento').show();">
+									<span class="fa fa-database"></span>
+									<span>Ver Tabla</span>
+									<span class="count"> </span>
+								</p:commandLink>
+							</div>
+						</div>
+					</div>
+
+					<div class="ui-g-12 ui-md-6 ui-lg-4">
+						<div class="highlight-box">
+							<div class="initials"
+								style="background-color: cyan; color: white; font-size: 30px;">Email</div>
+							<div class="card">
+								<p:commandLink
+									actionListener="#{beanMantendorFactParametro.subirArchivo('EMAIL')}"
+									partialSubmit="true" process="@this"
+									update=":#{p:component('dialogoPropiedades')}"
+									oncomplete="PF('dialogoPropiedades').show();">
+									<span class="fa fa-cloud-upload"></span>
+									<span> Cargar Archivo</span>
+									<span class="count"> </span>
+								</p:commandLink>
+								<p:commandLink
+									actionListener="#{beanMantendorFactParametro.descargarArchivo('EMAIL')}"
+									ajax="false">
+									<span class="fa fa-cloud-download"></span>
+									<span> Descargar Archivo</span>
+									<span class="count"> </span>
+								</p:commandLink>
+								<p:commandLink
+									actionListener="#{beanMantendorFactParametro.verTabla('EMAIL')}"
+									partialSubmit="true" process="@this"
+									update=":#{p:component('dialogoMantenimiento')}"
+									oncomplete="PF('dialogoMantenimiento').show();">
+									<span class="fa fa-database"></span>
+									<span>Ver Tabla</span>
+									<span class="count"> </span>
+								</p:commandLink>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</p:panel>
+
+			<p:dialog
+				header="Carga de archivo de propiedades proceso : #{beanMantendorFactParametro.entidadRegistrar.lProceso}"
+				id="dialogoPropiedades" width="40%" widgetVar="dialogoPropiedades">
+				<p:fileUpload skinSimple="true" uploadLabel="Subir"
+					label="Seleccione" allowTypes="/(\.|\/)(properties)$/"
+					invalidFileMessage="El tipo de archivo seleccionado no es válido, seleccione archivos con formato properties"
+					multiple="false" mode="advanced" sizeLimit="2097152"
+					showButtons="false"
+					fileUploadListener="#{beanMantendorFactParametro.subirArchivoPropiedadesProceso}"
+					process=":#{p:component('dialogoPropiedades')}" update="@form" />
+
+			</p:dialog>
+
+			<p:dialog
+				header="Tabla Propiedades proceso : #{beanMantendorFactParametro.entidadRegistrar.lProceso} "
+				id="dialogoMantenimiento" width="40%"
+				widgetVar="dialogoMantenimiento">
+				<p:dataTable value="#{beanMantendorFactParametro.lPropiedades}"
+					var="datos" reflow="true" rows="10" paginator="true"
+					paginatorAlwaysVisible="false" paginatorPosition="bottom"
+					id="tabParametros">
+					<f:facet name="header">
+						<p:commandButton value="Registrar" icon="fa fa-floppy-o"
+							process="@form" update="@form"
+							actionListener="#{beanMantendorFactParametro.registrarParametros}"></p:commandButton>
+
+					</f:facet>
+
+					<p:column footerText="Clave" filterBy="#{datos.lClave}"
+						filterStyle="width : 90%;">
+						<h:outputText value="#{datos.lClave}" />
+					</p:column>
+
+					<p:column headerText="Valor">
+						<p:inputText value="#{datos.lValor}">
+						</p:inputText>
+					</p:column>
+
+				</p:dataTable>
+
+			</p:dialog>
+
+
+		</h:form>
+
+	</ui:define>
+
+
+
+	<ui:define name="PIE_PERSONALIZADOS">
+
+		<div class="footer">
+			<h:graphicImage name="general/onix_logo.png" library="imagenes"
+				style="height : 40px; width : 100px;" />
+			<span class="footer-text">Facturación Eléctronica</span>
+		</div>
+	</ui:define>
+	
+	<ui:define name="LOGO" >
+	<a href="#{request.contextPath}/privadas/generales/pag_principal.jsf"
+		id="logo"> <h:graphicImage name="general/onix_logo.png"
+			library="imagenes" style="height : 40px; width : 100px;" />
+	</a>
+	</ui:define>
+	
+	<ui:define name="TITULO_PAGINA_NAVEGACION">
+		SEED BILLING - Facturación Eléctronica
+	</ui:define>
+
+</ui:composition>

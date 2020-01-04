@@ -1,0 +1,122 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/pag_principal_tmpl.xhtml">
+
+
+	<ui:define name="PANELES_PERSONALIZADOS">
+
+		<h:form>
+			<p:growl id="mensaje"></p:growl>
+
+			<div class="ui-g-12 ui-md-12">
+				<div class="card">
+					<h1>Parámetros</h1>
+					<p:toolbar>
+						<f:facet name="left">
+							<h:panelGrid columns="4">
+								<p:commandButton title="Subir propertie" icon="fa fa-upload"
+									actionListener="#{beanMantendorFactParametro.subirArchivo('FE')}"
+									partialSubmit="true" process="@this"
+									update=":#{p:component('dialogoPropiedades')}"
+									oncomplete="PF('dialogoPropiedades').show();" />
+								<p:commandButton title="Bajar propertie" icon="fa fa-download" 
+								actionListener="#{beanMantendorFactParametro.descargarArchivo('FE')}"
+									ajax="false" 
+								/>
+								<span class="ui-separator"> <span
+									class="ui-icon ui-icon-grip-dotted-vertical" />
+								</span>
+								<p:commandButton value="Guardar" icon="ui-icon-disk"
+									actionListener="#{beanMantendorFactParametro.guardar}"
+									process="@form" update="@form" />
+
+								<span class="ui-separator"> <span
+									class="ui-icon ui-icon-grip-dotted-vertical" />
+								</span>
+
+							</h:panelGrid>
+						</f:facet>
+					</p:toolbar>
+					<p:panelGrid columns="4" id="papParametros"
+						style="border:0px !important; background:none;"
+						styleClass="ui-panelgrid-blank">
+						<p:outputLabel value="Directorio de certificados:" for="dirCert"></p:outputLabel>
+
+						<p:inputText
+							placeholder="Directorio de certificados" size="60"
+							value="#{beanMantendorFactParametro.lDirectorioCertificado.lValor}"
+							id="dirCert" required="true"
+							requiredMessage="Debe ingresar el Directorio de certificados" />
+						<p:outputLabel value="Directorio de reportes:" for="dirRep"></p:outputLabel>
+						<p:inputText placeholder="Directorio de reportes" size="60"
+							value="#{beanMantendorFactParametro.lDirectorioJasper.lValor}"
+							id="dirRep" required="true"
+							requiredMessage="Debe ingresar el Directorio de reportes" />
+						<p:outputLabel value="Directorio de logos:" for="dirLog"></p:outputLabel>
+						<p:inputText placeholder="Directorio de logos" size="60"
+							value="#{beanMantendorFactParametro.lDirectorioLogos.lValor}"
+							id="dirLog" required="true"
+							requiredMessage="Debe ingresar el Directorio de logos" />
+						<p:outputLabel value="Url servicio firma:" for="urlFirm"></p:outputLabel>
+						<p:inputText placeholder="Url servicio firma" size="60"
+							value="#{beanMantendorFactParametro.lUrlServicioFirma.lValor}"
+							id="urlFirm" required="true"
+							requiredMessage="Debe ingresar la Url servicio firma" />
+						<p:outputLabel value="Url servicio comprobación:" for="urlComp"></p:outputLabel>
+						<p:inputText placeholder="Url servicio comprobación" size="60"
+							value="#{beanMantendorFactParametro.lUrlServicioComprobacion.lValor}"
+							id="urlComp" required="true"
+							requiredMessage="Debe ingresar la Url servicio comprobación" />
+						<p:outputLabel value="Url servicio autorización:" for="urlAut"></p:outputLabel>
+						<p:inputText placeholder="Url servicio autorización" size="60"
+							value="#{beanMantendorFactParametro.lDirectorioAutorizacion.lValor}"
+							id="urlAut" required="true"
+							requiredMessage="Debe ingresar la Url servicio autorización" />
+					</p:panelGrid>
+				</div>
+			</div>
+			
+			
+			
+			<p:dialog
+				header="Carga de archivo de propiedades proceso : #{beanMantendorFactParametro.entidadRegistrar.lProceso}"
+				id="dialogoPropiedades" width="40%" widgetVar="dialogoPropiedades">
+				<p:fileUpload skinSimple="true" uploadLabel="Subir"
+					label="Seleccione" allowTypes="/(\.|\/)(properties)$/"
+					invalidFileMessage="El tipo de archivo seleccionado no es válido, seleccione archivos con formato properties"
+					multiple="false" mode="advanced" sizeLimit="2097152"
+					showButtons="false"
+					fileUploadListener="#{beanMantendorFactParametro.subirArchivoPropiedadesProceso}"
+					process=":#{p:component('dialogoPropiedades')}" update="@form" />
+
+			</p:dialog>
+			
+		</h:form>
+
+	</ui:define>
+
+
+
+	<ui:define name="PIE_PERSONALIZADOS">
+
+		<div class="footer">
+			<h:graphicImage name="general/onix_logo.png" library="imagenes"
+				style="height : 40px; width : 100px;" />
+			<span class="footer-text">Facturación Eléctronica</span>
+		</div>
+	</ui:define>
+
+	<ui:define name="LOGO">
+		<a href="#{request.contextPath}/privadas/generales/pag_principal.jsf"
+			id="logo"> <h:graphicImage name="general/onix_logo.png"
+				library="imagenes" style="height : 40px; width : 100px;" />
+		</a>
+	</ui:define>
+
+	<ui:define name="TITULO_PAGINA_NAVEGACION">
+		SEED BILLING - Facturación Eléctronica
+	</ui:define>
+
+</ui:composition>

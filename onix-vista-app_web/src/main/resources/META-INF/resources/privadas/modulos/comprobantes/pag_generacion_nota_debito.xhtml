@@ -1,0 +1,527 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	template="#{configuracionesGeneralesMB.getValorConstanteConfiguracion('RUTA_TEMPLATE_GENERAL')}">
+
+	<ui:define name="SEGM_CONTENIDO_OPCIONES_TITULO">
+		<h:outputText value="Emisión de Notas de Débito electrónica" />
+	</ui:define>
+
+	<ui:define name="SEGM_CONTENIDO_OPCIONES">
+
+		<h:form id="frmNotaDeb">
+			<p:growl id="msgs" showDetail="true" />
+
+			<p:commandButton style="display:none" id="enterBtn" />
+			<p:defaultCommand target="enterBtn" />
+
+			<fieldset>
+				<legend
+					style="font-family: Verdana, Arial, sans-serif; font-size: 11px;">Datos
+					Generales</legend>
+				<h:panelGrid columns="3" cellpadding="5">
+					<p:outputLabel value="Empresas:" />
+					<p:selectOneMenu id="cbmRuc"
+						value="#{notaDebitoMBean.mbGeneral.id}">
+						<f:selectItem itemValue="" itemLabel="Seleccione una empresa" />
+						<f:selectItems value="#{notaDebitoMBean.mbGeneral.itemsCompania}" />
+						<p:ajax event="change"
+							listener="#{notaDebitoMBean.actualizaInfoCia}"
+							update=":frmNotaDeb:outRazonSocial , :frmNotaDeb:cmbEmiEstab"></p:ajax>
+					</p:selectOneMenu>
+					<h:outputText
+						style="font-family:Verdana, Arial, sans-serif;font-size:11px;"
+						value="#{notaDebitoMBean.mbGeneral.compania.ruc}"
+						id="outRazonSocial" />
+
+					<p:outputLabel value="Punto de emisión" />
+					<p:selectOneMenu id="cmbEmiEstab"
+						value="#{notaDebitoMBean.emisionEstab}">
+						<f:selectItem itemValue="-"
+							itemLabel="Seleccione un punto de emisión" />
+						<f:selectItems value="#{notaDebitoMBean.tiposEmisionEstab}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="" />
+
+
+					<p:outputLabel for="button" value="Fecha de emisión(dd/mm/yyyy):" />
+
+					<p:calendar id="button" value="#{notaDebitoMBean.fechaEmision}"
+						showOn="button" size="10" readonlyInput="true"
+						pattern="dd/MM/yyyy">
+
+					</p:calendar>
+
+
+
+				</h:panelGrid>
+
+
+				<h:panelGrid columns="2" style="margin-bottom:10px" cellpadding="5"
+					id="iddatosSujeto">
+					<h:panelGrid columns="1" style="margin-bottom:10px" cellpadding="5">
+						<p:selectOneRadio id="rdbClasesIdent"
+							value="#{notaDebitoMBean.claseIdent}" columns="1">
+							<f:selectItem itemLabel="Consumidor Final" itemValue="07" />
+							<f:selectItem itemLabel="RUC/CI/PAS/PLAC" itemValue="02" />
+							<p:ajax event="click" update="frmNotaDeb:pgDatosComprador"
+								listener="#{notaDebitoMBean.cambiaConsumidor}" />
+						</p:selectOneRadio>
+					</h:panelGrid>
+					<h:panelGrid columns="6" style="margin-bottom:10px" cellpadding="5"
+						id="pgDatosComprador">
+
+
+						<p:inputText id="txtIdentComprador"
+							value="#{notaDebitoMBean.identificacionComprador}"
+							disabled="#{notaDebitoMBean.consumidorFinal}" maxlength="13">
+							<p:ajax event="blur"
+								listener="#{notaDebitoMBean.presentarDialogoCliente}"
+								update="idDlgCliente" process="@this" partialSubmit="true"></p:ajax>
+						</p:inputText>
+						<p:commandButton icon="ui-icon-search"
+							onclick="PF('dlgRazonSocial').show();"
+							actionListener="#{notaDebitoMBean.limpiezaDatos}" process="@this"
+							partialSubmit="true"
+							update="pgDatosComprador,dialogoBusqueda:idTablaResultado"
+							disabled="#{notaDebitoMBean.consumidorFinal}" />
+
+
+						<h:outputText value="Tipo Documento" style="font-family: Verdana,Arial,sans-serif; font-size: 1.1em;"/>
+						<h:outputText
+							value="#{notaDebitoMBean.lTipoIdentificacion(notaDebitoMBean.tipoIdentComprador)}"
+							id="txtTipoDocComprador" style="font-family: Verdana,Arial,sans-serif; font-size: 1.1em;" />
+
+						<h:outputLabel value="Razón Social/Nombre" style="font-family: Verdana,Arial,sans-serif; font-size: 1.1em;" />
+						<h:outputText value="#{notaDebitoMBean.nombreComprador}"
+							id="txtNomComprador" style="font-family: Verdana,Arial,sans-serif; font-size: 1.1em;" />
+
+					</h:panelGrid>
+				</h:panelGrid>
+			</fieldset>
+			<fieldset>
+				<legend
+					style="font-family: Verdana, Arial, sans-serif; font-size: 11px;">Comprobante
+					de venta que se modifica</legend>
+				<h:panelGrid columns="4">
+					<p:outputLabel value="* Tipo Documento" />
+					<p:selectOneMenu id="cbmTipoDocMod"
+						value="#{notaDebitoMBean.tipoDocModifica}">
+						<f:selectItems value="#{notaDebitoMBean.listaDocumentosMod}" />
+					</p:selectOneMenu>
+					<p:outputLabel value="  " />
+					<h:panelGrid columns="2">
+						<p:outputLabel value="Fecha de emisión(dd/mm/yyyy):" />
+						<p:calendar value="#{notaDebitoMBean.fechaDocModifica}"
+							id="calFecMod" showOn="button" readonly="true"
+							pattern="dd/MM/yyyy"></p:calendar>
+						<p:outputLabel value="Número de comprobante:" />
+						<h:panelGrid columns="5" id="pGrNroDocModpar" style="border:none">
+							<p:inputMask value="#{notaDebitoMBean.adEmision}" size="3"
+								mask="999" maxlength="3"
+								onkeypress="if (event.keyCode == 13) {return false; };" />
+							<p:outputLabel value="-" />
+							<p:inputMask value="#{notaDebitoMBean.adEstable}" size="3"
+								mask="999" maxlength="3"
+								onkeypress="if (event.keyCode == 13) {return false; };" />
+							<p:outputLabel value="-" />
+							<p:inputText value="#{notaDebitoMBean.adSecuencia}" size="10"
+								maxlength="9"
+								onkeypress="if (event.keyCode == 13) {return false; };">
+							</p:inputText>
+						</h:panelGrid>
+					</h:panelGrid>
+				</h:panelGrid>
+			</fieldset>
+			<fieldset>
+				<legend
+					style="font-family: Verdana, Arial, sans-serif; font-size: 11px;">Detalle
+					de la Nota de Débito</legend>
+				<div align="right">
+					<p:commandButton value="+" partialSubmit="true" process="@this"
+						onclick="PF('pro').show();" />
+				</div>
+				<p:dataTable value="#{notaDebitoMBean.listaMotivo}"
+					id="idTblMotivos" var="detalle"
+					emptyMessage="No detalles para la nota débito">
+					<p:column width="100" headerText="Nro.">
+						<p:outputLabel process="@this" size="3" value="#{detalle.item}" />
+					</p:column>
+					<p:column width="300" headerText="Razón de la modificación">
+						<p:outputLabel value="#{detalle.razonModifica}" />
+					</p:column>
+					<p:column width="300" headerText="Valor de la modificación">
+						<p:outputLabel value="#{detalle.valorModificacion}" />
+					</p:column>
+					<p:column width="40" headerText="Eliminar"
+						style="text-align:center;">
+						<p:commandButton icon="ui-icon-closethick"
+							actionListener="#{notaDebitoMBean.eliminarFila}"
+							update=":frmNotaDeb:idTblMotivos, :frmNotaDeb:pnlGrTotOpc, :frmNotaDeb:pnlGrTotSumTot, :frmNotaDeb:pnlGrTotales">
+							<f:attribute name="MOTIVO" value="#{detalle}"></f:attribute>
+						</p:commandButton>
+					</p:column>
+
+				</p:dataTable>
+			</fieldset>
+
+			<table width="100%">
+				<tr>
+					<td width="50%" height="100%">
+
+						<fieldset>
+							<legend
+								style="font-family: Verdana, Arial, sans-serif; font-size: 11px;">Pagos</legend>
+
+							<p:panel id="ppPagosExpor">
+
+								<div align="right">
+									<p:commandButton icon="ui-icon-plus" partialSubmit="true"
+										process="@this" onclick="PF('pag').show();"></p:commandButton>
+								</div>
+
+								<p:dataTable value="#{notaDebitoMBean.listaPagos}"
+									id="idTblPagos" var="pagos" emptyMessage="No existen pagos">
+									<p:column width="50" headerText="Forma de pago">
+										<p:outputLabel size="3" value="#{pagos.formaPago}" />
+									</p:column>
+									<p:column width="50" headerText="Total">
+										<p:outputLabel size="3" value="#{pagos.total}" />
+									</p:column>
+
+									<p:column width="50" headerText="Plazo">
+										<p:outputLabel size="3" value="#{pagos.plazo}" />
+									</p:column>
+
+									<p:column width="50" headerText="Unidad de tiempo">
+										<p:outputLabel size="3" value="#{pagos.unidadTiempo}" />
+									</p:column>
+
+									<p:column width="50" headerText="Eliminar"
+										style="text-align:center;">
+										<p:commandButton icon="ui-icon-closethick"
+											actionListener="#{notaDebitoMBean.eliminarPago}"
+											update=":frmNotaDeb:idTblPagos, :frmNotaDeb:pnlGrTotOpc , :frmNotaDeb:pnlGrTotSumTot, :frmNotaDeb:pnlGrTotales">
+											<f:attribute name="PAGOEXP" value="#{pagos}"></f:attribute>
+										</p:commandButton>
+									</p:column>
+								</p:dataTable>
+							</p:panel>
+						</fieldset>
+
+						<fieldset>
+							<legend
+								style="font-family: Verdana, Arial, sans-serif; font-size: 11px;">Datos
+								Adicionales</legend>
+							<div align="right">
+								<p:commandButton value="+" partialSubmit="true" process="@this"
+									onclick="PF('det').show();"></p:commandButton>
+							</div>
+							<p:dataTable value="#{notaDebitoMBean.detallesAdicionales}"
+								id="idTblDetAdicional" var="adicional"
+								emptyMessage="No existen detalles adicionales">
+								<p:column width="35" headerText="Nombre">
+									<p:outputLabel value="#{adicional.nombre}" />
+								</p:column>
+								<p:column width="103" headerText="Valor">
+									<h:inputText size="50" value="#{adicional.descripcion}"
+										disabled="#{!adicional.editable}"
+										onkeypress="if (event.keyCode == 13) {return false; };" />
+								</p:column>
+								<p:column width="4">
+									<p:commandButton icon="ui-icon-closethick"
+										actionListener="#{notaDebitoMBean.eliminarFilaAdicional}"
+										update=":frmNotaDeb:idTblDetAdicional"
+										disabled="#{adicional.nombre.equals('USUARIO')?'true':adicional.nombre.equals('DIRECCION')?'true':
+										adicional.nombre.equals('EMAILCLIENTE')?'true':'false'}">
+										<f:attribute name="ADICIONALDET" value="#{adicional}"></f:attribute>
+									</p:commandButton>
+								</p:column>
+
+							</p:dataTable>
+						</fieldset>
+						<fieldset>
+							<legend
+								style="font-family: Verdana, Arial, sans-serif; font-size: 11px;">Acciones</legend>
+							<h:panelGrid columns="3" cellpadding="5">
+								<p:commandButton value="Calcular"
+									update="frmNotaDeb:msgs,pnlGrTotales"
+									action="#{notaDebitoMBean.elegirAccionCalcular}" />
+								<p:commandButton
+									action="#{notaDebitoMBean.generarXmlNotaDebito}"
+									value="Guardar"
+									update=":frmNotaDeb:msgs,:frmNotaDeb:idTblMotivos" />
+								<p:commandButton action="#{notaDebitoMBean.reset}" value="Nuevo"
+									update=":frmNotaDeb" />
+							</h:panelGrid>
+						</fieldset>
+					</td>
+					<td width="50%">
+						<fieldset>
+							<h:panelGrid columns="1" cellpadding="5" id="pnlGrTotales">
+								<h:panelGrid columns="2" cellpadding="5" id="pnlGrTotSinIpst"
+									style="font-family:Verdana, Arial, sans-serif;font-size:11px;">
+									<p:outputLabel value="SUBTOTAL SIN IMPUESTOS : " />
+									<p:outputLabel value="#{notaDebitoMBean.subtotalSinImpuestos}" />
+									<p:outputLabel value="  " />
+								</h:panelGrid>
+								<h:panelGrid columns="3" cellpadding="5" id="pnlGrTotOpc">
+									<p:outputLabel value="SUBTOTAL 12% : " />
+									<p:inputText value="#{notaDebitoMBean.subtotal12}"
+										readonly="true" id="txtSubt12" />
+									<p:selectBooleanCheckbox value="#{notaDebitoMBean.aplica12}">
+										<p:ajax
+											update=":frmNotaDeb:pnlGrTotOpc, :frmNotaDeb:pnlGrTotSumTot, :frmNotaDeb:pnlGrTotales"
+											listener="#{notaDebitoMBean.activa12}" />
+									</p:selectBooleanCheckbox>
+									<h:panelGrid rendered="false">
+										<p:outputLabel value="SUBTOTAL 14% : " />
+										<p:inputText value="#{notaDebitoMBean.subtotal14}"
+											readonly="true" id="txtSubt14" />
+										<p:selectBooleanCheckbox value="#{notaDebitoMBean.aplica14}">
+											<p:ajax
+												update=":frmNotaDeb:pnlGrTotOpc , :frmNotaDeb:pnlGrTotSumTot, :frmNotaDeb:pnlGrTotales"
+												listener="#{notaDebitoMBean.activa14}" />
+										</p:selectBooleanCheckbox>
+									</h:panelGrid>
+
+									<p:outputLabel value="SUBTOTAL 0% : " />
+									<p:inputText value="#{notaDebitoMBean.subtotal0}"
+										readonly="true" id="txtSubt0" />
+									<p:selectBooleanCheckbox value="#{notaDebitoMBean.aplica0}">
+										<p:ajax
+											update=":frmNotaDeb:pnlGrTotOpc, :frmNotaDeb:pnlGrTotSumTot, :frmNotaDeb:pnlGrTotales"
+											listener="#{notaDebitoMBean.activa0}" />
+									</p:selectBooleanCheckbox>
+
+
+									<p:outputLabel value="SUBTOTAL NO OBJETO DE IVA : " />
+									<p:inputText value="#{notaDebitoMBean.subtotalNoObjetoIva}"
+										readonly="true" id="txtSubtNoSujet" />
+									<p:selectBooleanCheckbox
+										value="#{notaDebitoMBean.aplicaNoSujeto}">
+										<p:ajax
+											update=":frmNotaDeb:pnlGrTotOpc, :frmNotaDeb:pnlGrTotSumTot, :frmNotaDeb:pnlGrTotales"
+											listener="#{notaDebitoMBean.activaNoSujeto}" />
+									</p:selectBooleanCheckbox>
+
+									<p:outputLabel value="SUBTOTAL EXCENTO DE IVA : " />
+									<p:inputText value="#{notaDebitoMBean.subtotalExcento}"
+										readonly="true" id="txtSubtExcecto" />
+									<p:selectBooleanCheckbox
+										value="#{notaDebitoMBean.aplicaExcento}">
+										<p:ajax
+											update=":frmNotaDeb:pnlGrTotOpc, :frmNotaDeb:pnlGrTotSumTot, :frmNotaDeb:pnlGrTotales"
+											listener="#{notaDebitoMBean.activaExcento}" />
+									</p:selectBooleanCheckbox>
+
+									<h:panelGrid rendered="false">
+										<p:outputLabel value="Descuento Solidario : " />
+										<p:inputText value="#{notaDebitoMBean.totalCompensacion}"
+											readonly="true" id="txtCompensasion" />
+										<p:selectBooleanCheckbox
+											value="#{notaDebitoMBean.aplicaCompensacion}"
+											disabled="#{notaDebitoMBean.disableCompensacion}">
+											<p:ajax
+												update=":frmNotaDeb:pnlGrTotOpc, :frmNotaDeb:pnlGrTotCalTot, :frmNotaDeb:pnlGrTotales"
+												listener="#{notaDebitoMBean.activaDesactivaCompensacion}" />
+										</p:selectBooleanCheckbox>
+									</h:panelGrid>
+
+								</h:panelGrid>
+								<!-- 								SE COMENTA PARA EL BCO PORUQE NO APLICA ICE -->
+								<!-- 								<h:panelGrid columns="4" cellpadding="5"> -->
+								<!-- 									<p:outputLabel value="VALOR ICE: " /> -->
+								<!-- 									<p:inputText value="#{notaDebitoMBean.valorIce}" size="7" onkeypress="if (event.keyCode == 13) {return false; };" /> -->
+								<!-- 									<p:outputLabel value="cod" /> -->
+								<!-- 									<p:selectOneMenu id="cbmTipoIce" -->
+								<!-- 										value="#{notaDebitoMBean.codigoIce}"> -->
+								<!-- 										<f:selectItem itemLabel="No aplica" itemValue="-1" /> -->
+								<!-- 										<f:selectItems value="#{notaDebitoMBean.tiposIce}" /> -->
+								<!-- 									</p:selectOneMenu> -->
+								<!-- 								</h:panelGrid> -->
+								<h:panelGrid columns="2" cellpadding="5" id="pnlGrTotSumTot"
+									style="font-family:Verdana, Arial, sans-serif;font-size:11px;">
+									<h:outputLabel value="IVA % " />
+									<h:outputLabel value="#{notaDebitoMBean.valorIva12}" />
+								</h:panelGrid>
+								<h:panelGrid columns="4" cellpadding="5" id="pnlGrTotCalTot"
+									style="font-family:Verdana, Arial, sans-serif;font-size:11px;">
+									<h:outputLabel value="VALOR TOTAL" />
+									<h:outputLabel value="#{notaDebitoMBean.importeTotal}" />
+									<p:outputLabel value="" />
+									<p:commandButton icon="ui-icon-refresh"
+										action="#{notaDebitoMBean.calcularTotal}"
+										update=":frmNotaDeb:pnlGrTotSumTot , :frmNotaDeb:pnlGrTotCalTot , :frmNotaDeb:msgs,  :frmNotaDeb:pnlGrTotales" />
+								</h:panelGrid>
+							</h:panelGrid>
+						</fieldset>
+					</td>
+				</tr>
+			</table>
+
+			<p:dialog id="idDlgCliente" widgetVar="idDlgCliente"
+				header="Datos Cliente" resizable="false" closable="false">
+				<p:growl id="mensajesCliente"></p:growl>
+				<p:panel id="pIngCli">
+					<h:panelGrid columns="2">
+						<h:outputLabel value="Tipo Identificación: " />
+						<p:selectOneMenu filter="true" id="cmbTipoIdentificacion"
+							value="#{notaDebitoMBean.lClienteSuscriptor.lTipoIdentificacion}">
+							<f:selectItem itemLabel="Cédula" itemValue="05" />
+							<f:selectItem itemLabel="Ruc" itemValue="04" />
+							<f:selectItem itemLabel="Pasaporte" itemValue="06" />
+							<f:selectItem itemLabel="Ident Exterior" itemValue="08" />
+						</p:selectOneMenu>
+						<h:outputLabel value="Identificación: " />
+						<p:inputText 
+							value="#{notaDebitoMBean.lClienteSuscriptor.lIdentificacion}"></p:inputText>
+						<h:outputLabel value="Nombre/Razón Social: " />
+						<p:inputText 
+							value="#{notaDebitoMBean.lClienteSuscriptor.lRazonSocial}"></p:inputText>
+						<h:outputLabel value="Dirección: " />
+						<p:inputTextarea 
+							value="#{notaDebitoMBean.lClienteSuscriptor.lDireccion}"></p:inputTextarea>
+						<h:outputLabel value="Emails Nota Débito: " />
+						<p:inputTextarea 
+							value="#{notaDebitoMBean.lClienteSuscriptor.lEmailsNotaDebito}"
+							title="Debe ingresar los emails, separados por ;"></p:inputTextarea>
+						<p:commandButton value="Aceptar"
+							actionListener="#{notaDebitoMBean.actualizarClienteSuscriptor}"
+							process="pIngCli, mensajesCliente"
+							update="frmNotaDeb:msgs, frmNotaDeb:txtIdentComprador, frmNotaDeb:txtNomComprador, frmNotaDeb:idTblDetAdicional, frmNotaDeb:txtTipoDocComprador"></p:commandButton>
+					</h:panelGrid>
+
+				</p:panel>
+			</p:dialog>
+
+			<p:dialog id="idDlgPro" widgetVar="pro" header="Ingreso de Productos"
+				resizable="false">
+				<p:panel id="pIngPro">
+					<h:panelGrid columns="2">
+						<h:outputText value="Motivo" />
+						<p:inputText value="#{notaDebitoMBean.motivo.razonModifica}" />
+
+						<h:outputText value="Valor Modificación" />
+						<p:inputText value="#{notaDebitoMBean.motivo.valorModificacion}" />
+
+						<p:commandButton value="Aceptar"
+							action="#{notaDebitoMBean.guardarMotivo}" process="pIngPro"
+							update=":frmNotaDeb:idTblMotivos, :frmNotaDeb:idDlgPro, :frmNotaDeb:pnlGrTotOpc, :frmNotaDeb:pnlGrTotSumTot, :frmNotaDeb:pnlGrTotales"
+							oncomplete="PF('pro').hide();" />
+						<p:commandButton value="Cancelar" oncomplete="PF('pro').hide();"></p:commandButton>
+					</h:panelGrid>
+				</p:panel>
+			</p:dialog>
+
+
+			<p:dialog id="idDlgDet" widgetVar="det"
+				header="Ingreso Detalle Adicional" resizable="false">
+				<p:panel id="pIngDet">
+					<h:panelGrid columns="2">
+						<h:outputText value="Nombre" />
+						<p:inputText value="#{notaDebitoMBean.adicional.nombre}" />
+						<h:outputText value="Valor" />
+						<p:inputText value="#{notaDebitoMBean.adicional.descripcion}" />
+
+						<p:commandButton value="Aceptar"
+							action="#{notaDebitoMBean.guardarDetalleAdicional}"
+							process="pIngDet"
+							update=":frmNotaDeb:idTblDetAdicional , :frmNotaDeb:idDlgDet"
+							oncomplete="PF('det').hide();" />
+						<p:commandButton value="Cancelar" oncomplete="PF('det').hide();"></p:commandButton>
+					</h:panelGrid>
+				</p:panel>
+			</p:dialog>
+
+			<p:dialog id="idDlgPag" widgetVar="pag" header="Ingreso de Pago"
+				resizable="false">
+				<p:panel id="pIngPag">
+					<h:panelGrid columns="2">
+						<h:outputText value="Forma de pago" />
+						<p:selectOneMenu value="#{notaDebitoMBean.pago.formaPago}">
+							<f:selectItems value="#{notaDebitoMBean.formasDePago}" />
+						</p:selectOneMenu>
+
+						<h:outputText value="Total" />
+						<p:inputText value="#{notaDebitoMBean.pago.total}" />
+
+						<h:outputText value="Plazo" />
+						<p:inputText value="#{notaDebitoMBean.pago.plazo}" maxlength="4"
+							size="4" />
+
+						<h:outputText value="Unidad de tiempo" />
+						<p:selectOneMenu value="#{notaDebitoMBean.pago.unidadTiempo}">
+							<f:selectItem itemLabel="DIAS" itemValue="DIAS" />
+							<f:selectItem itemLabel="MESES" itemValue="MESES" />
+							<f:selectItem itemLabel="AÑOS" itemValue="ANIOS" />
+						</p:selectOneMenu>
+
+						<p:commandButton value="Aceptar"
+							action="#{notaDebitoMBean.guardaPago}" process="pIngPag"
+							update=":frmNotaDeb:idTblPagos , :frmNotaDeb:idDlgPag"
+							oncomplete="PF('pag').hide();" />
+						<p:commandButton value="Cancelar" oncomplete="PF('pag').hide();" />
+
+					</h:panelGrid>
+				</p:panel>
+			</p:dialog>
+
+			<p:remoteCommand name="frmNotaDeb" autoRun="true"
+				action="#{notaDebitoMBean.init()}"
+				update="frmNotaDeb:cbmRuc, 
+			 frmNotaDeb:outRazonSocial, frmNotaDeb:cmbEmiEstab,  frmNotaDeb:iddatosSujeto,  frmNotaDeb:idDlgPag,
+			 frmNotaDeb:idDlgDet, frmNotaDeb:idTblMotivos  " />
+		</h:form>
+
+		<p:dialog header="Buscar por Razón Social" widgetVar="dlgRazonSocial"
+			height="250" position="center center" id="dlgRazonSocial"
+			closable="true" closeOnEscape="true" modal="true" appendTo="@(body)"
+			resizable="false" showEffect="clip" hideEffect="clip" width="450">
+			<h:form id="dialogoBusqueda">
+				<p:message for="rruc" id="txtMensaje" />
+				<h:panelGrid columns="3" id="idCriterios">
+					<h:outputText value="Razón Social:" />
+					<p:inputText value="#{notaDebitoMBean.razonSocialBuscar}"
+						required="true" id="rruc"
+						requiredMessage="Ingrese el nombre de un cliente/proveedor" />
+					<p:commandButton icon="ui-icon-search"
+						actionListener="#{notaDebitoMBean.consultaRazonSocial}"
+						process="idCriterios" partialSubmit="true"
+						update="frmNotaDeb:txtIdentComprador,txtMensaje,idTablaResultado" />
+				</h:panelGrid>
+
+				<p:dataTable id="idTablaResultado"
+					value="#{notaDebitoMBean.lListaClienteSuscriptor}" rows="5"
+					var="proveedores" paginatorPosition="bottom"
+					rowKey="#{proveedores.lIdentificacion}" selectionMode="single"
+					selection="#{notaDebitoMBean.lClienteSuscriptorSeleccionado}"
+					paginator="true" emptyMessage="No se han encontrado registros">
+
+
+					<p:ajax event="rowSelect"
+						listener="#{notaDebitoMBean.controladorEvento}"
+						update="frmNotaDeb:msgs, frmNotaDeb:txtIdentComprador, frmNotaDeb:txtNomComprador, frmNotaDeb:idTblDetAdicional, frmNotaDeb:txtTipoDocComprador"
+						oncomplete="PF('dlgRazonSocial').hide();" />
+
+					<p:column headerText="Razón Social"
+						style="width:100%; text-align:left;">
+						<h:outputText value="#{proveedores.lRazonSocial}" />
+					</p:column>
+
+					<p:column headerText=" No- Identificación"
+						style="width:100%; text-align:left;">
+						<h:outputText value="#{proveedores.lIdentificacion}" />
+					</p:column>
+
+
+				</p:dataTable>
+			</h:form>
+		</p:dialog>
+	</ui:define>
+
+</ui:composition>

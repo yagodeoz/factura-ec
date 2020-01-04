@@ -1,0 +1,290 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	template="/WEB-INF/template_mantenedor.xhtml">
+
+
+	<ui:define name="head">
+		<title>#{beanMantenedorProducto.tituloPagina}</title>
+	</ui:define>
+	<ui:define name="subheader">
+       #{beanMantenedorProducto.descripcionPagina}
+    </ui:define>
+
+	<ui:define name="titulo_tab">
+		#{beanMantenedorProducto.tab}
+	</ui:define>
+	<ui:define name="cab_formulario">		
+		#{beanMantenedorProducto.ayudaPagina}
+	</ui:define>
+	<ui:define name="grid_formulario">
+		<p:panelGrid columns="2" layout="grid"
+			style="border:0px !important; background:none;" id="panel">
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Código:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder=" Código "
+					value="#{beanMantenedorProducto.entidadRegistrar.lCodigoProducto}"
+					id="Codigo" required="true" onblur="ChangeCase(this);"
+					requiredMessage="Debe ingresar el código del producto" />
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Cód. Auxiliar:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder=" Cód. Auxiliar "
+					value="#{beanMantenedorProducto.entidadRegistrar.lNombre}"
+					id="Nombre" onblur="ChangeCase(this);" />
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Descripción:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder=" Descripción "
+					value="#{beanMantenedorProducto.entidadRegistrar.lDescripcion}"
+					id="Descripcion" required="true" onblur="ChangeCase(this);" />
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<h:outputText value="Precio Unitario:"></h:outputText>
+				</div>
+				<p:inputText value="#{beanMantenedorProducto.entidadRegistrar.lPrecioUnitario}"></p:inputText>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="select">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="IVA:"></p:outputLabel>
+				</div>
+				<p:selectOneMenu value="#{beanMantenedorProducto.entidadRegistrar.lCodigoIva}">
+					<f:selectItems 
+					 values="#{beanMantenedorProducto.lListaImpuestoIva}"
+					itemLabel="#{listaIva.lDescripcion}"
+						itemValue="#{listaIva.lCodigoImpuesto}"
+						var="listaIva" />
+				</p:selectOneMenu>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="select">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="ICE:"></p:outputLabel>
+				</div>
+				<p:selectOneMenu value="#{beanMantenedorProducto.entidadRegistrar.lCodigoICE}"
+					style="width:125px">
+					<f:selectItem itemLabel="NO APLICA" itemValue="0" />
+					<f:selectItems 
+					values="#{beanMantenedorProducto.lListaImpuestoIce}"
+					itemLabel="#{listaIva.lDescripcion}"
+						itemValue="#{listaIva.lCodigoImpuesto}" 
+						var="listaIce" />
+				</p:selectOneMenu>
+			</pe:fluidGridItem>
+
+		</p:panelGrid>
+
+		<p:commandButton value="Cancelar" styleClass="RedButton"
+			update="panel" process="@this">
+			<p:resetInput target="panel" />
+		</p:commandButton>
+		<p:commandButton value="Registrar" styleClass="CyanButton"
+			actionListener="#{beanMantenedorProducto.guardarOActualizar}"
+			process="contenedor"
+			update=":#{p:component('contenedor')}, :#{p:component('mensajeGlobal')}, :#{p:component('tablaDatos')}, :#{p:component('dialogoMantenimiento')}" />
+	</ui:define>
+
+	<ui:define name="cab_tabla_datos">
+		#{beanMantenedorProducto.cabeceraTabla}
+	</ui:define>
+
+	<ui:define name="tabla_datos">
+		<p:dataTable value="#{beanMantenedorProducto.listaEntidades}"
+			var="cargo"
+			emptyMessage="#{beanMantenedorProducto.mensajeTablaVacia}" rows="8"
+			reflow="true" paginator="true" paginatorPosition="bottom"
+			id="tablaDatos" paginatorAlwaysVisible="false">
+
+
+			<p:column headerText="Código" width="10%">
+				<h:outputText value="#{cargo.lCodigoProducto}" />
+			</p:column>
+
+			<p:column headerText="Descripción" width="20%">
+				<h:outputText value="#{cargo.lDescripcion}" />
+			</p:column>
+			
+			<p:column headerText="Precio" width="10%">
+				<h:outputText value="#{cargo.lPrecioUnitario}" />
+			</p:column>
+
+			<p:column headerText="IVA" width="15%">
+				<h:outputText value="#{cargo.lCodigoIva}" />
+			</p:column>
+
+			<p:column headerText="ICE" width="15%">
+				<h:outputText value="#{cargo.lImpuestoIce}" />
+			</p:column>
+
+
+			<p:column headerText="Estado" width="6%">
+				<h:outputText
+					value="#{cargo.estado eq beanMantenedorProducto.estadoActivo?'ACTIVO':'INACTIVO'}" />
+			</p:column>
+
+
+			<p:column headerText="Fecha Registro" width="10%">
+				<h:outputText value="#{cargo.fechaRegistro}">
+					<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"
+						timeZone="#{beanMantenedorProducto.currentTimeZone}" />
+				</h:outputText>
+			</p:column>
+
+			<p:column headerText="Acciones" width="9%">
+
+				<p:panelGrid columns="2">
+
+					<p:commandLink title="Actualizar"
+						actionListener="#{beanMantenedorProducto.actualizarEntidad}"
+						update=":#{p:component('dialogoMantenimiento')}" process="@this">
+
+						<i class="fa fa-edit Fs20 BoldGray DispBlock"> </i>
+
+						<f:attribute
+							name="#{beanMantenedorProducto.nombreAtributoCambioEstado}"
+							value="#{cargo}"></f:attribute>
+
+					</p:commandLink>
+					<p:commandLink title="Cambiar Estado"
+						actionListener="#{beanMantenedorProducto.cambiarEstado}"
+						update="@form" process="@this">
+						<i
+							class="#{cargo.estado eq beanMantenedorProducto.estadoActivo ? 'fa fa-toggle-on' : 'fa fa-toggle-off' } Fs20 BoldGray DispBlock"></i>
+						<f:attribute
+							name="#{beanMantenedorProducto.nombreAtributoCambioEstado}"
+							value="#{cargo}"></f:attribute>
+
+						<p:confirm header="Confirmación"
+							message="Seguro que desea realizar esta operación?"
+							icon="ui-icon-alert" />
+					</p:commandLink>
+
+					<p:commandLink title="Detalles Adicionales"
+						
+						update=":#{p:component('dialogoCertificado')}" process="@this"
+						oncomplete="PF('dialogoCertificado').show();">
+						<i class="fa fa-file-code-o Fs20 BoldGray DispBlock"> </i>
+						<f:attribute name="EMPRESA" value="#{cargo}"></f:attribute>
+					</p:commandLink>
+
+				</p:panelGrid>
+			</p:column>
+
+		</p:dataTable>
+
+
+
+		<p:dialog
+			header="Datos Adicionales Producto: #{beanMantenedorProducto.entidadRegistrar.lDescripcion}"
+			widgetVar="dialogoCertificado" id="dialogoCertificado" modal="true"
+			width="40%">
+
+			<p:panelGrid columns="2" layout="grid" id="panelCertificado">
+			</p:panelGrid>
+		</p:dialog>
+
+	</ui:define>
+
+	<ui:define name="cab_dialogo">
+		#{beanMantenedorProducto.cabeceraDialogo}
+	</ui:define>
+	<ui:define name="cab_panel_dialogo">
+#{beanMantenedorProducto.cabeceraPanelDialogo}
+</ui:define>
+
+	<ui:define name="datos_dialogo">
+		<p:panelGrid columns="2" layout="grid"
+			style="border:0px !important; background:none;" id="panel">
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Código:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder=" Código "
+					value="#{beanMantenedorProducto.entidadRegistrar.lCodigoProducto}"
+					id="Codigo" required="true" onblur="ChangeCase(this);"
+					requiredMessage="Debe ingresar el código del producto" />
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Cód. Auxiliar:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder=" Cód. Auxiliar "
+					value="#{beanMantenedorProducto.entidadRegistrar.lNombre}"
+					id="Nombre" onblur="ChangeCase(this);" />
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Descripción:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder=" Descripción "
+					value="#{beanMantenedorProducto.entidadRegistrar.lDescripcion}"
+					id="Descripcion" required="true" onblur="ChangeCase(this);" />
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<h:outputText value="Precio Unitario:"></h:outputText>
+				</div>
+				<p:inputText value="#{beanMantenedorProducto.entidadRegistrar.lPrecioUnitario}"></p:inputText>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="select">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="IVA:"></p:outputLabel>
+				</div>
+				<p:selectOneMenu value="#{beanMantenedorProducto.entidadRegistrar.lCodigoIva}">
+					<f:selectItems itemLabel="#{listaIva.lDescripcion}"
+						itemValue="#{listaIva.lCodigoImpuesto}" values="#{beanMantenedorProducto.lListaImpuestoIva}"
+						var="listaIva" />
+				</p:selectOneMenu>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="select">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="ICE:"></p:outputLabel>
+				</div>
+				<p:selectOneMenu value="#{beanMantenedorProducto.entidadRegistrar.lCodigoICE}"
+					style="width:125px">
+					<f:selectItem itemLabel="NO APLICA" itemValue="0" />
+					<f:selectItems itemLabel="#{lista.lDescripcion}"
+						itemValue="#{lista.lCodigoImpuesto}" values="#{beanMantenedorProducto.lListaImpuestoIce}"
+						var="lista" />
+				</p:selectOneMenu>
+			</pe:fluidGridItem>
+
+		</p:panelGrid>
+
+		<p:commandButton value="Actualizar" styleClass="CyanButton"
+			actionListener="#{beanMantenedorProducto.guardarOActualizar}"
+			process="PanelActualizar"
+			update=":#{p:component('mensajeGlobal')}, :#{p:component('tablaDatos')}">
+			<p:confirm header="Confirmación"
+				message="Seguro que desea realizar esta operación?"
+				icon="ui-icon-alert" />
+		</p:commandButton>
+
+	</ui:define>
+
+	<ui:define name="control_dialogo">
+		<p:ajax event="close" update=":#{p:component('panel')}"
+			listener="#{beanMantenedorProducto.eventoControlCierreDialogo}" />
+	</ui:define>
+
+</ui:composition>

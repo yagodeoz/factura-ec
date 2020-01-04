@@ -1,0 +1,165 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/pag_principal_tmpl.xhtml">
+	<ui:define name="PANELES_PERSONALIZADOS">
+		<style>
+.ui-widget, .ui-widget .ui-widget {
+	font-size: 9px;
+}
+</style>
+		<h:form>
+
+			<p:growl id="mensajeTransaccional"></p:growl>
+			<div class="ui-g ui-fluid dashboard">
+				<div class="ui-g-12 ui-md-12">
+					<div class="card">
+
+						<p:panel toggleable="true" header="Criterios de consulta"
+							id="paCriterio">
+
+							<p:panelGrid layout="grid" columns="7">
+								<h:outputText value="Número Documento:" />
+								<p:inputMask mask="999999999999999"
+									value="#{beanMantendorComprobantes.lNumeroDocumento}"></p:inputMask>
+								<h:outputText value="Fecha desde:" />
+								<p:calendar
+									value="#{beanMantendorComprobantes.lFechaIncio}"
+									required="true"
+									requiredMessage="Debe seleccionar la fecha inicio" locale="es" readonlyInput="true"
+									pattern="dd/MM/yyyy"></p:calendar>
+								<h:outputText value="Fecha hasta:" />
+								<p:calendar
+									value="#{beanMantendorComprobantes.lFechaFin}"
+									required="true" requiredMessage="Debe seleccionar la fecha fin" locale="es" 
+									readonlyInput="true"
+									pattern="dd/MM/yyyy"
+									></p:calendar>
+								<p:commandLink
+									actionListener="#{beanMantendorComprobantes.buscarComprobantesCliente}"
+									process=":#{p:component('paCriterio')}"
+									update=":#{p:component('tabComprobantes')}, :#{p:component('mensajeTransaccional')}">
+									<span class="fa fa-search fa-2x"></span>
+								</p:commandLink>
+
+							</p:panelGrid>
+
+						</p:panel>
+						<p:tabView id="tabComprobantes">
+							<p:tab title="Comprobantes Electrónicos Autorizados">
+
+								<p:dataTable id="tabColaAutorizados"
+									value="#{beanMantendorComprobantes.lListaComprobantesAutorizados}"
+									var="cola" emptyMessage="No tiene comprobantes registrados para ese criterio de busqueda">
+									<p:column headerText="Clave Acceso" width="30%">
+										<div align="center">
+											<h:outputText value="#{cola.id}" />
+										</div>
+									</p:column>
+									<p:column headerText="Número Documento" width="10%">
+										<h:outputText value="#{cola.numDocumento}" />
+									</p:column>
+
+									<p:column headerText="Identificación Cliente" width="10%">
+										<h:outputText value="#{cola.identificacionCliente}" />
+									</p:column>
+
+									<p:column headerText="Fecha Autorización">
+										<div align="center">
+											<h:outputText value="#{cola.fechaAutorizacion}" />
+										</div>
+									</p:column>
+
+									<p:column headerText="Tipo Documento" width="10%">
+										<div align="center">
+											<h:outputText
+												value="#{beanMantendorComprobantes.decodificarTipoDoc(cola.tipoDocumento)}" />
+										</div>
+									</p:column>
+
+
+									<p:column headerText="Fecha Registro" width="10%">
+										<div align="center">
+											<h:outputText value="#{cola.fechaRegistro}" />
+										</div>
+									</p:column>
+
+									<p:column headerText="Estado" width="10%">
+										<div align="center">
+											<h:outputText
+												value="#{beanMantendorComprobantes.decodificarEstado(cola.estado)}" />
+										</div>
+									</p:column>
+
+									<p:column headerText="Ver Respuesta Autorización" width="5%">
+										<div align="center">
+											<p:commandLink title="Descargar Respuesta XML" ajax="false"
+												actionListener="#{beanMantendorComprobantes.descargarXMLAutorizacion}">
+												<i class="fa fa-file-code-o Fs40 BoldGray DispBlock"> </i>
+												<f:attribute name="COMPROBANTE" value="#{cola}"></f:attribute>
+											</p:commandLink>
+										</div>
+									</p:column>
+
+									<p:column headerText="Ver XML" width="5%">
+										<div align="center">
+											<p:commandLink title="Descargar XML Firmado"
+												ajax="false"
+												actionListener="#{beanMantendorComprobantes.descargarXML}">
+
+												<i class="fa fa-file-code-o Fs40 BoldGray DispBlock"> </i>
+
+												<f:attribute name="COMPROBANTE" value="#{cola}"></f:attribute>
+
+											</p:commandLink>
+										</div>
+									</p:column>
+
+									<p:column headerText="Ver RIDE" width="5%">
+										<div align="center">
+											<p:commandLink title="Descargar RIDE" ajax="false"
+												actionListener="#{beanMantendorComprobantes.descargarRIDE}">
+
+												<i class="fa fa-file-pdf-o Fs40 BoldGray DispBlock"> </i>
+
+												<f:attribute name="COMPROBANTE" value="#{cola}"></f:attribute>
+
+											</p:commandLink>
+										</div>
+									</p:column>
+								</p:dataTable>
+							</p:tab>
+						</p:tabView>
+					</div>
+				</div>
+
+			</div>
+
+		</h:form>
+
+	</ui:define>
+
+
+
+	<ui:define name="PIE_PERSONALIZADOS">
+
+		<div class="footer">
+			<h:graphicImage name="general/onix_logo.png" library="imagenes"
+				style="height : 40px; width : 100px;" />
+			<span class="footer-text">Facturación Eléctronica</span>
+		</div>
+	</ui:define>
+
+	<ui:define name="LOGO">
+		<a href="#{request.contextPath}/privadas/generales/pag_principal.jsf"
+			id="logo"> <h:graphicImage name="general/onix_logo.png"
+				library="imagenes" style="height : 40px; width : 100px;" />
+		</a>
+	</ui:define>
+
+	<ui:define name="TITULO_PAGINA_NAVEGACION">
+		ONIX FE - Facturación Eléctronica
+	</ui:define>
+
+</ui:composition>

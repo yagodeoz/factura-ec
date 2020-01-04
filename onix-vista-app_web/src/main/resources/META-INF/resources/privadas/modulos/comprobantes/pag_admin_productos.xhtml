@@ -1,0 +1,245 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	template="/WEB-INF/template_mantenedor.xhtml">
+
+	<ui:define name="head">
+		<h:outputText value="Gestión de Productos"></h:outputText>
+		<style>
+.ui-datatable thead th, .ui-datatable tbody td, .ui-datatable tfoot td,
+	.ui-datatable tfoot th {
+	padding: 4px 0px;
+	overflow: hidden;
+	border-width: 1px;
+	border-style: solid;
+}
+
+.ui-widget, .ui-widget .ui-widget {
+	font-size: 12px;
+	text-decoration: none;
+	min-width: 100px !important;
+}
+
+</style>
+
+	</ui:define>
+
+	<ui:define name="subheader">
+		<h:outputText value="Datos Generales de Productos"></h:outputText>
+	</ui:define>
+
+	<ui:define name="cab_formulario">
+		<h:outputText value="Datos Generales de Productos"></h:outputText>
+	</ui:define>
+
+	<ui:define name="titulo_tab">
+		<h:outputText value="Datos Generales de Productos"></h:outputText>
+	</ui:define>
+
+	<ui:define name="grid_formulario">
+
+		<p:panelGrid columns="2" layout="grid"
+			style="border:0px !important; background:none;" id="panel">
+			
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Empresa:" />
+				</div>
+				<p:selectOneMenu value="#{productosMBean.lDataProducto.idEmpresa}"
+					id="selEmpres">
+					<f:selectItems value="#{productosMBean.listadoEmpresas}"
+						var="empresa" itemValue="#{empresa.id}"
+						itemLabel="#{empresa.lRazonSocial}"></f:selectItems>
+				</p:selectOneMenu>
+			</pe:fluidGridItem>
+			
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<h:outputText value="Código Principal:"></h:outputText>
+				</div>
+				<p:inputText styleClass="Wid70" placeholder="Código Producto"
+					value="#{productosMBean.lDataProducto.codigoPrincipal}"
+					onblur="ChangeCase(this);" maxlength="25" required="true"
+					requiredMessage="Debe ingresar el dato identificación"></p:inputText>
+			</pe:fluidGridItem>
+
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<h:outputText value="Código Auxiliar:"></h:outputText>
+				</div>
+				<p:inputText styleClass="Wid70" placeholder="Código Auxiliar"
+					value="#{productosMBean.lDataProducto.codigoAuxiliar}"
+					onblur="ChangeCase(this);" maxlength="25" 
+					required="true"
+					requiredMessage="Debe ingresar el dato identificación"></p:inputText>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<h:outputText value="Tipo Producto:"></h:outputText>
+				</div>
+				<p:selectOneMenu styleClass="Wid70"
+					value="${productosMBean.lDataProducto.tipoProducto}"
+					id="selTipoProducto">
+					<f:selectItem itemLabel="SERVICIOS" itemValue="S" />
+					<f:selectItem itemLabel="BIENES" itemValue="B" />
+				</p:selectOneMenu>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<h:outputText value="Descripción:"></h:outputText>
+				</div>
+
+				<p:inputText value="#{productosMBean.lDataProducto.descripcion}"
+					onblur="ChangeCase(this);" maxlength="300" styleClass="Wid70"
+					placeholder="Descripción" required="true"
+					requiredMessage="Debe ingresar el dato identificación"></p:inputText>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<h:outputText value="Unidad Medida:"></h:outputText>
+				</div>
+				<p:inputText value="#{productosMBean.lDataProducto.unidadMedida}"
+					onblur="ChangeCase(this);" maxlength="300" styleClass="Wid70"
+					placeholder="Descripción"></p:inputText>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<h:outputText value="Precio Unitario:"></h:outputText>
+				</div>
+				<p:inputText value="#{productosMBean.lDataProducto.precioUnitario}"
+					styleClass="Wid70" placeholder="Precio Unitario">
+				</p:inputText>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<h:outputText value="IVA:"></h:outputText>
+				</div>
+				<p:selectOneMenu styleClass="Wid70"
+					value="#{productosMBean.lDataProducto.codigoIva}">
+					<f:selectItems itemLabel="#{listaIva.valor}"
+						itemValue="#{listaIva.clave}" value="#{productosMBean.listaIva}"
+						var="listaIva" />
+					<p:ajax event="change" update="@this" process="@this"
+						listener="#{productosMBean.setearIVA}" />
+				</p:selectOneMenu>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<h:outputText value="ICE:"></h:outputText>
+				</div>
+				<p:selectOneMenu value="#{productosMBean.lDataProducto.codigoIce}"
+					styleClass="Wid70">
+					<f:selectItem itemLabel="NO APLICA" itemValue="0" />
+					<f:selectItems itemLabel="#{listaIce.valor}"
+						itemValue="#{listaIce.clave}" value="#{productosMBean.listaIce}"
+						var="listaIce" />
+					<p:ajax event="change" update="@this" process="@this"
+						listener="#{productosMBean.setearICE}" />
+				</p:selectOneMenu>
+			</pe:fluidGridItem>
+		</p:panelGrid>
+
+		<p:commandButton value="Cancelar" styleClass="RedButton"
+			update="panel" process="@this">
+			<p:resetInput target=":#{p:component('contenedor')}" />
+		</p:commandButton>
+		<p:commandButton value="Registrar" styleClass="CyanButton"
+			actionListener="#{productosMBean.registrarProducto}"
+			process="contenedor"
+			update="@form" 
+			/>
+		
+	</ui:define>
+
+	<ui:define name="cab_tabla_datos">
+		<h:outputText value="Productos Registrados"></h:outputText>
+	</ui:define>
+	
+	<ui:define name="tabla_datos">
+	
+		<p:dataTable value="#{productosMBean.lListaProducto}"
+			var="datListaProducto"
+			emptyMessage="#{beanMantendorFactEmpresa.mensajeTablaVacia}" rows="15"
+			reflow="true" paginator="true" paginatorPosition="bottom"
+			id="tablaDatos" paginatorAlwaysVisible="false">	
+
+			<p:column headerText="Descripción"
+				filterBy="#{datListaProducto.descripcion}"
+				filterStyle="width: 200px;" width="30%">
+				<center>
+					<h:outputText value="#{datListaProducto.descripcion}"></h:outputText>
+				</center>
+			</p:column>
+
+			<p:column headerText="Unidad Medida" width="15%">
+				<center>
+					<h:outputText value="#{datListaProducto.unidadMedida}"></h:outputText>
+				</center>
+			</p:column>
+
+			<p:column headerText="Código Principal"
+				filterBy="#{datListaProducto.codigoPrincipal}"
+				filterStyle="width: 50px;" width="10%">
+				<center>
+					<h:outputText value="#{datListaProducto.codigoPrincipal}"></h:outputText>
+				</center>
+			</p:column>
+
+			<p:column headerText="Código Auxiliar"
+				filterBy="#{datListaProducto.codigoAuxiliar}"
+				filterStyle="width: 50px;" width="10%">
+				<center>
+					<h:outputText value="#{datListaProducto.codigoAuxiliar}"></h:outputText>
+				</center>
+			</p:column>
+
+			<p:column headerText="Precio Unitario" width="10%">
+				<center>
+					<h:outputText value="#{datListaProducto.precioUnitario}"></h:outputText>
+				</center>
+			</p:column>
+
+
+			<p:column headerText="Estado" width="8%">
+				<center>
+					<h:outputText
+						value="#{datListaProducto.estado eq 'A'?'Activo':'Inactivo'}"></h:outputText>
+				</center>
+			</p:column>
+
+			<p:column headerText="Acciones" width="8%">
+				<p:panelGrid columns="2" layout="grid"
+					style="border : none; background : none;">
+					
+					<p:commandLink title="Actualizar"  process="@this"
+						update=":#{p:component('contenedor')}"
+						actionListener="#{productosMBean.actualizarProducto}">
+						<f:attribute name="PRODUCTO" value="#{datListaProducto}" />
+						<i class="fa fa-edit Fs20 BoldGray DispBlock"> </i>
+					</p:commandLink>
+					<p:commandLink title="Inactivar"  
+						actionListener="#{productosMBean.eliminarProducto}"
+						process="@this" update=":#{p:component('tablaDatos')}">
+						<f:attribute name="PRODUCTO" value="#{datListaProducto}" />
+						<p:confirm header="Confirmación"
+							message="Seguro cambiar el estado de este producto? "
+							icon="ui-icon-alert" />
+							<i class="fa fa-exchange Fs20 BoldGray DispBlock"> </i>
+					</p:commandLink>
+				</p:panelGrid>
+			</p:column>
+
+		</p:dataTable>
+	</ui:define>
+
+</ui:composition>

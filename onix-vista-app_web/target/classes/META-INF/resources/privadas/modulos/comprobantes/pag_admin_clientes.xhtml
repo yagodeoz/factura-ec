@@ -1,0 +1,229 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	template="/WEB-INF/template_mantenedor.xhtml">
+
+	<ui:define name="head">
+		<title>Mantenimiento de Clientes</title>
+
+		<style>
+.ui-widget, .ui-widget .ui-widget {
+	font-size: 12px;
+	text-decoration: none;
+	min-width: 100px !important;
+}
+</style>
+
+
+	</ui:define>
+
+	<ui:define name="subheader">
+		<h:outputText value="Mantenimiento de Clientes"></h:outputText>
+	</ui:define>
+
+	<ui:define name="titulo_tab">
+		<h:outputText value="Datos Generales de Clientes"></h:outputText>
+	</ui:define>
+
+	<ui:define name="cab_formulario">
+		<h:outputText value="Datos Generales de Clientes"></h:outputText>
+	</ui:define>
+
+	<ui:define name="grid_formulario">
+
+		<p:panelGrid columns="2" layout="grid"
+			style="border:0px !important; background:none;" id="panel">
+
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Empresa:" />
+				</div>
+				<p:selectOneMenu value="#{clientesMBean.lDataCliente.idEmpresa}"
+					id="selEmpres">
+					<f:selectItems value="#{clientesMBean.listadoEmpresas}"
+						var="empresa" itemValue="#{empresa.id}"
+						itemLabel="#{empresa.lRazonSocial}"></f:selectItems>
+				</p:selectOneMenu>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Tipo Cliente:" />
+				</div>
+				<p:selectOneMenu styleClass="Wid70"
+					value="${clientesMBean.lDataCliente.tipoCliente}"
+					id="selTipoCliente">
+					<f:selectItem itemLabel="CLIENTE" itemValue="C" />
+					<f:selectItem itemLabel="PROVEEDOR" itemValue="P" />
+				</p:selectOneMenu>
+			</pe:fluidGridItem>
+
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Tipo Identificación:" />
+				</div>
+				<p:selectOneMenu styleClass="Wid70"
+					value="${clientesMBean.lDataCliente.tipoIdentificacion}"
+					id="selTipoIdentificacion">
+					<f:selectItem itemLabel="CÉDULA" itemValue="1" />
+					<f:selectItem itemLabel="RUC" itemValue="2" />
+					<f:selectItem itemLabel="PASAPORTE" itemValue="3" />
+					<f:selectItem itemLabel="IDENTIFICACIÓN EXT" itemValue="4" />
+				</p:selectOneMenu>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Identificación:" />
+				</div>
+
+				<p:inputText styleClass="Wid70" placeholder="Identificación"
+					value="${clientesMBean.lDataCliente.identificacion}"
+					id="Identificacion" required="true"
+					requiredMessage="Debe ingresar el dato identificación">
+
+					<p:ajax event="blur" update="Identificacion, :#{p:component('mensajeGlobal')}"
+						process="@this, selTipoIdentificacion, selEmpres"
+						listener="#{clientesMBean.validarIdentificacion}" />
+
+				</p:inputText>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="Razón Social/Nombres:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder="Razón Social/Nombres"
+					value="${clientesMBean.lDataCliente.nombreRazon}" required="true"
+					requiredMessage="Debe ingresar la razón social o nombre"
+					onblur="ChangeCase(this);">
+				</p:inputText>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="Email:" />
+				</div>
+
+				<p:inputTextarea styleClass="Wid70" placeholder="Si va a ingresar más de un email debe separarlo por , o por ;"
+					value="${clientesMBean.lDataCliente.email}" id="email"
+					required="true" requiredMessage="Debe ingresar el dato email">
+					<p:ajax event="blur" update="email, :#{p:component('mensajeGlobal')}" process="@this"
+						listener="#{clientesMBean.validarEmail}" />
+				</p:inputTextarea>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="Teléfono:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder="Teléfono"
+					value="${clientesMBean.lDataCliente.telefono}" required="true"
+					requiredMessage="Debe ingresar el teléfono">
+				</p:inputText>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="Dirección:" />
+				</div>
+
+				<p:inputTextarea styleClass="Wid70" placeholder="Dirección"
+					value="${clientesMBean.lDataCliente.direccion}" required="true"
+					requiredMessage="Debe ingresar el dato Dirección"
+					onblur="ChangeCase(this);">
+				</p:inputTextarea>
+			</pe:fluidGridItem>
+		</p:panelGrid>
+
+		<p:commandButton value="Cancelar" styleClass="RedButton"
+			update="panel" process="@this">
+			<p:resetInput target=":#{p:component('contenedor')}" />
+		</p:commandButton>
+		<p:commandButton value="Registrar" styleClass="CyanButton"
+			actionListener="#{clientesMBean.registrarcliente}"
+			process="contenedor"
+			update="@form" />
+
+	</ui:define>
+
+	<ui:define name="cab_tabla_datos">
+		Clientes Registrados
+	</ui:define>
+
+	<ui:define name="tabla_datos">
+
+		<p:dataTable value="#{clientesMBean.lListacliente}"
+			var="datListaCliente"
+			emptyMessage="#{beanMantendorFactEmpresa.mensajeTablaVacia}"
+			rows="15" reflow="true" paginator="true" paginatorPosition="bottom"
+			id="tablaDatos" paginatorAlwaysVisible="false">
+
+			<p:column headerText="Razón Social / Nombre"
+				filterBy="#{datListaCliente.nombreRazon}"
+				filterStyle="width: 125px;">
+				<h:outputText value="#{datListaCliente.nombreRazon}"></h:outputText>
+			</p:column>
+
+			<p:column headerText="Identificación"
+				filterBy="#{datListaCliente.identificacion}"
+				filterStyle="width: 150px;">
+				<h:outputText value="#{datListaCliente.identificacion}"></h:outputText>
+			</p:column>
+
+			<p:column headerText="E-Mail">
+				<h:outputText value="#{datListaCliente.email}" disabled="true"></h:outputText>
+			</p:column>
+
+			<p:column headerText="Fecha Registro" width="12%">
+				<h:outputText value="#{datListaCliente.fechaRegistro}">
+					<f:convertDateTime pattern="dd/MM/yyyy" />
+				</h:outputText>
+			</p:column>
+
+			<p:column headerText="Tipo Cliente" width="15%">
+				<h:outputText
+					value="#{datListaCliente.tipoCliente eq 'P'?'Proveedor':'Cliente'}"></h:outputText>
+			</p:column>
+
+			<p:column headerText="Estado" width="15%">
+				<h:outputText
+					value="#{datListaCliente.estado eq 'A'?'Activo':'Inactivo'}"></h:outputText>
+			</p:column>
+
+			<p:column headerText="Acciones" width="15%">
+				<p:panelGrid columns="2" style="border : none; background : none;">
+					<p:commandLink title="Actualizar" 
+												process="@this"
+						update=":#{p:component('contenedor')}"
+						actionListener="#{clientesMBean.actualizarcliente}">
+						<i class="fa fa-edit Fs20 BoldGray DispBlock"> </i>
+						<f:attribute name="CLIENTE" value="#{datListaCliente}" />
+					</p:commandLink>
+					
+					
+					<p:commandLink title="Inactivar"  
+						actionListener="#{clientesMBean.eliminarcliente}" process="@this"
+						update=":#{p:component('tablaDatos')}">
+						
+						<i class="fa fa-exchange Fs20 BoldGray DispBlock"> </i>
+						
+						<f:attribute name="CLIENTE" value="#{datListaCliente}" />
+						<p:confirm header="Confirmación"
+							message="Esta seguro de cambiar el estado del cliente"
+							icon="ui-icon-alert" />
+					</p:commandLink>
+				</p:panelGrid>
+			</p:column>
+
+
+		</p:dataTable>
+	</ui:define>
+
+</ui:composition>
+

@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/pag_principal_tmpl.xhtml">
+
+	<ui:define name="PANELES_PERSONALIZADOS">
+
+		<style>
+.ui-widget, .ui-widget .ui-widget {
+	font-size: 9px;
+}
+
+.etiquetasCol {
+	width: 3%;
+}
+
+.cajasCol {
+	width: 35%;
+}
+
+.botonCol {
+	width: 20%;
+}
+
+.top-alignment {
+	vertical-align: top;
+}
+</style>
+		<h:form id="frmMantInfoCia">
+			<p:growl id="msgMant" showDetail="true"></p:growl>
+			<div class="ui-g ui-fluid dashboard">
+				<div class="ui-g-12 ui-md-12">
+					<div class="card">
+						<fieldset>
+							<legend
+								style="font-family: Verdana, Arial, sans-serif; font-size: 11px;">Configuración
+								de secuencial</legend>
+							<h:panelGrid columns="1">
+								<p:dataTable value="#{generalMBean.listaConfiguracionCia}"
+									id="tablaMantenimiento" var="mantenimiento" editable="true"
+									editMode="cell">
+									<p:column headerText="RUC">
+										<h:outputText value="#{mantenimiento.ruc}" />
+									</p:column>
+
+									<p:column headerText="COMPROBANTE">
+										<h:outputText value="#{mantenimiento.tipoDoc}" />
+									</p:column>
+
+									<p:column headerText="LOCALIDAD ESTABLECIMIENTO">
+										<p:cellEditor>
+											<f:facet name="output">
+												<h:outputText value="#{mantenimiento.ptoEmiEstab}" />
+											</f:facet>
+											<f:facet name="input">
+												<h:inputText value="#{mantenimiento.ptoEmiEstab}" />
+											</f:facet>
+										</p:cellEditor>
+									</p:column>
+
+									<p:column headerText="SECUENCIA">
+										<p:cellEditor>
+											<f:facet name="output">
+												<h:outputText value="#{mantenimiento.secuencia}" />
+											</f:facet>
+											<f:facet name="input">
+												<h:inputText value="#{mantenimiento.secuencia}" />
+											</f:facet>
+										</p:cellEditor>
+									</p:column>
+
+									<p:column headerText="Elminar" style="text-align:center;">
+										<p:commandButton icon="ui-icon-closethick"
+											actionListener="#{generalMBean.eliminaSecuenciaDocumeto}"
+											update=":frmMantInfoCia:tablaMantenimiento">
+											<f:attribute name="CONFIGURACION" value="#{mantenimiento}"></f:attribute>
+										</p:commandButton>
+									</p:column>
+
+								</p:dataTable>
+								<p:panel>
+									<p:commandButton value="Actualizar"
+										actionListener="#{generalMBean.actualizaInfoCompania}"
+										partialSubmit="true"
+										update="frmMantInfoCia:tablaMantenimiento , :frmMantInfoCia:msgMant" />
+									<p:commandButton value="Agregar"
+										actionListener="#{generalMBean.actualizaInfoCompania}"
+										partialSubmit="true" process="@this"
+										onclick="PF('pro').show();" />
+								</p:panel>
+							</h:panelGrid>
+						</fieldset>
+
+					</div>
+				</div>
+			</div>
+			<p:dialog id="idDlgPro" widgetVar="pro"
+				header="Ingreso Configuracion" resizable="false">
+				<p:panel id="pIngPro">
+					<h:panelGrid columns="2">
+						<p:outputLabel value="Ruc" />
+						<p:selectOneMenu id="cbmRuc" value="#{generalMBean.id}">
+							<f:selectItem itemValue="-" itemLabel="Seleccione Uno" />
+							<f:selectItems value="#{generalMBean.itemsCia}" />
+						</p:selectOneMenu>
+						<p:outputLabel value="Tipo Comprobante" />
+						<p:selectOneMenu id="cbmTipoDoc"
+							value="#{generalMBean.idDocumento}">
+							<f:selectItem itemValue="-" itemLabel="Seleccione Uno" />
+							<f:selectItems value="#{generalMBean.listaDocumentosMod}" />
+						</p:selectOneMenu>
+						<p:outputLabel value="Punto Emision Establecimiento :" />
+						<p:inputMask mask="999999" value="#{generalMBean.ptoEmEstab}" />
+						<p:outputLabel value="Secuencia :" />
+						<p:inputText value="#{generalMBean.secuencia}" />
+
+						<p:commandButton value="Aceptar"
+							action="#{generalMBean.guardaConfiguracion}" process="pIngPro"
+							update=":frmMantInfoCia:tablaMantenimiento, :frmMantInfoCia:idDlgPro, :frmMantInfoCia:msgMant"
+							oncomplete="PF('pro').hide();" />
+						<p:commandButton value="Cancelar" oncomplete="PF('pro').hide();"></p:commandButton>
+					</h:panelGrid>
+				</p:panel>
+			</p:dialog>
+		</h:form>
+	</ui:define>
+
+</ui:composition>

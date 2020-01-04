@@ -1,0 +1,596 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html" 
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	template="#{configuracionesGeneralesMB.getValorConstanteConfiguracion('RUTA_TEMPLATE_GENERAL')}">
+	
+	<ui:define name="SEGM_CONTENIDO_OPCIONES_TITULO">
+		<h:outputText value="Emisión de Notas de Crédito electrónica" />
+	</ui:define>
+
+	<ui:define name="SEGM_CONTENIDO_OPCIONES">
+
+		<h:form id="frmNotaCredito"> 
+			<p:growl id="msg" showDetail="true"></p:growl>
+		
+			
+			<p:commandButton style="display:none" id="enterBtn"/>
+            <p:defaultCommand target="enterBtn" />
+
+			<fieldset>
+				<legend style="font-family:Verdana, Arial, sans-serif;font-size:11px;" >Datos Generales</legend>
+				<h:panelGrid columns="3" cellpadding="5" >
+					<h:outputLabel value="Ruc:" style="font-family:Verdana, Arial, sans-serif;font-size:11px;" />
+				    <p:selectOneMenu id="cbmRuc" value="#{notaCreditoMBean.mbGeneral.id}">
+					<f:selectItem itemValue="" itemLabel="Seleccione una empresa" />
+					<f:selectItems value="#{notaCreditoMBean.mbGeneral.itemsCompania}" />
+					<p:ajax event="change" listener="#{notaCreditoMBean.actualizaInfoCia}"
+						update=":frmNotaCredito:outRazonSocial , :frmNotaCredito:cmbEmiEstab"></p:ajax>
+				     </p:selectOneMenu>
+				    <h:outputText value="#{notaCreditoMBean.mbGeneral.compania.ruc}" id="outRazonSocial" />
+					<p:outputLabel value="Punto de Emisión: " />
+					<p:selectOneMenu id="cmbEmiEstab" value="#{notaCreditoMBean.emisionEstab}" >
+						<f:selectItem itemValue="-" itemLabel="Seleccione un punto de emisión" />
+						<f:selectItems value="#{notaCreditoMBean.tiposEmisionEstab}" />
+					</p:selectOneMenu>
+					<p:outputLabel value="" />
+						<p:outputLabel for="button" value="Fecha de Emisión(dd/mm/yyyy):" />
+						<p:calendar id="button" value="#{notaCreditoMBean.fechaEmision}" 
+					showOn="button" size="10"  readonlyInput="true" pattern="dd/MM/yyyy"  >
+					</p:calendar>
+				</h:panelGrid>
+					
+				<h:panelGrid columns="2" style="margin-bottom:10px" cellpadding="5" id="datosSujeto">
+					<h:panelGrid columns="1" style="margin-bottom:10px" cellpadding="5">
+						<p:selectOneRadio id="rdbClasesIdent" value="#{notaCreditoMBean.claseIdent}" columns="1">
+							<f:selectItem itemLabel="Consumidor Final" itemValue="07" />
+							<f:selectItem itemLabel="Ruc/CI/Pas/Plac" itemValue="02" />
+							<p:ajax event="change" update=":frmNotaCredito:pgDatosComprador" listener="#{notaCreditoMBean.cambiaConsumidor}" />
+						</p:selectOneRadio>
+					</h:panelGrid>
+					<h:panelGrid columns="6" style="margin-bottom:10px" cellpadding="5"	id="pgDatosComprador">
+						
+						<p:inputText id="txtIdentComprador" disabled="#{notaCreditoMBean.consumidorFinal}"	value="#{notaCreditoMBean.identificacionComprador}"
+							 maxlength="13" onkeypress="return soloNumeros(event)"> 
+					
+						<p:ajax event="blur" listener="#{notaCreditoMBean.presentarDialogoCliente}" update="idDlgCliente" process="@this"
+										partialSubmit="true"></p:ajax>
+							
+						</p:inputText>
+						
+							 <p:commandButton  icon="ui-icon-search"
+								onclick="PF('dlgRazonSocial').show();"
+								actionListener="#{notaCreditoMBean.limpiezaDatos}" disabled="#{notaCreditoMBean.consumidorFinal}"
+								process="@this" partialSubmit="true"
+								update=":frmNotaCredito:pgDatosComprador,dialogoBusqueda:idTablaResultado" />
+
+						
+								<h:outputText value="Tipo Documento" style="font-family: Verdana,Arial,sans-serif; font-size: 1.1em;"/>
+								<h:outputText value="#{notaCreditoMBean.lTipoIdentificacion(notaCreditoMBean.tipoIdentComprador)}" id="txtTipoDocComprador" 
+								style="font-family: Verdana,Arial,sans-serif; font-size: 1.1em;"
+								/>
+								
+								<h:outputLabel value="Razón Social/Nombre" style="font-family: Verdana,Arial,sans-serif; font-size: 1.1em;" />
+								<h:outputText value="#{notaCreditoMBean.nombreComprador}" id="txtNomComprador" 
+								style="font-family: Verdana,Arial,sans-serif; font-size: 1.1em;"/>
+					
+					</h:panelGrid>
+				</h:panelGrid>
+			</fieldset>
+			<br />
+			<fieldset>
+				<legend style="font-family:Verdana, Arial, sans-serif;font-size:11px;" >Comprobante de venta que se modifica</legend>
+				<h:panelGrid columns="4" cellpadding="0" id="comprobanteVenta">
+
+					<p:outputLabel value="* Tipo de Documento: " />
+					<p:selectOneMenu>
+						<f:selectItem itemValue="Factura" itemLabel="Factura" />
+					</p:selectOneMenu>
+
+					<h:panelGrid columns="5" cellpadding="5">
+						<p:outputLabel for="button1" value="Fecha de Emisión(dd/mm/yyyy):" />
+						<p:calendar id="button1" value="#{notaCreditoMBean.fechaEmisionComp}" showOn="button"  pattern="dd/MM/yyyy"  />
+					</h:panelGrid>
+
+					<p:outputLabel />
+					<p:outputLabel />
+
+					<div align="left">
+						<h:panelGrid columns="5" cellpadding="5">
+							<p:outputLabel value="* Nro. Comprobante: " />
+							<p:inputMask value="#{notaCreditoMBean.nroComprobante1}" size="3"
+								maxlength="3" mask="999" onkeypress="if (event.keyCode == 13) {return false; };" />
+							<p:inputMask value="#{notaCreditoMBean.nroComprobante2}" size="3"
+								maxlength="3" mask="999" onkeypress="if (event.keyCode == 13) {return false; };" />
+							<p:inputText value="#{notaCreditoMBean.nroComprobante3}" size="14"
+								maxlength="9" onkeypress="if (event.keyCode == 13) {return false; };"  />
+						</h:panelGrid>
+					</div>
+					<p:outputLabel value="* Motivo: " />
+					<p:inputTextarea value="#{notaCreditoMBean.motivo}" style="width:400px;" maxlength="300" />
+				</h:panelGrid>
+
+			</fieldset>
+			<br />
+			<fieldset>
+
+				<legend style="font-family:Verdana, Arial, sans-serif;font-size:11px;">Detalle de la Nota de Crédito</legend>
+
+				<div align="right">
+					<p:commandButton icon="ui-icon-plus" partialSubmit="true" process="@this" onclick="PF('pro').show();" 
+						actionListener="#{notaCreditoMBean.limpiarValores}" update=":frmNotaCredito:pIngPro" />
+				</div>
+				<p:dataTable value="#{notaCreditoMBean.detalleFactura}" id="idTblProductos" var="detalle" emptyMessage="No existen detalle de la nota de crédito" > 
+					<p:column width="70" headerText="Cantidad">
+						<h:outputText process="@this" size="3" value="#{detalle.cantidad}" />
+					</p:column>
+					
+					<p:column width="30" headerText="Unidad Medida">
+						<center>
+							<h:outputText
+								value="#{detalle.unidadMedida}" />
+						</center>
+					</p:column>
+					
+					<p:column width="68" headerText="Código Principal">
+						<h:outputText size="6" value="#{detalle.codigoPrincipal}" />
+					</p:column>
+
+					<p:column width="60" headerText="Código Auxiliar">
+						<h:outputText size="6" value="#{detalle.codigoAuxiliar}" />
+					</p:column>
+
+					<p:column width="210" headerText="Descripción">
+						<h:outputText size="50" value="#{detalle.descripcion}" />
+					</p:column>
+
+					<p:column headerText="Precio Unitario">
+						<h:outputText value="#{detalle.precioUnitario}" >
+								<f:convertNumber type="number" 
+                                 maxIntegerDigits="15"
+                                 maxFractionDigits="6"
+                                 groupingUsed="false"  locale="en-US" />
+						</h:outputText>
+					</p:column>
+
+					<p:column width="85" headerText="Descuento">
+						<h:outputText value="#{detalle.descuento}" >
+								<f:convertNumber type="number" 
+                                 maxIntegerDigits="15"
+                                 maxFractionDigits="6"
+                                 groupingUsed="false"  locale="en-US" />
+						</h:outputText>
+					</p:column>
+
+					<p:column width="85" headerText="IVA">
+						<h:outputText value="#{detalle.valorIva}">
+								<f:convertNumber type="number" 
+                                 maxIntegerDigits="15"
+                                 maxFractionDigits="6"
+                                 groupingUsed="false"  locale="en-US" />
+						</h:outputText>
+					</p:column>
+				
+					<p:column headerText="ICE">
+						<h:outputText value="#{detalle.valorIce}" >
+								<f:convertNumber type="number" 
+                                 maxIntegerDigits="15"
+                                 maxFractionDigits="6"
+                                 groupingUsed="false"  locale="en-US" />
+						</h:outputText>
+					</p:column>
+					
+					<p:column headerText="Valor Total">
+						<h:outputText value="#{detalle.total}">
+								<f:convertNumber type="number" 
+                                 maxIntegerDigits="15"
+                                 maxFractionDigits="6"
+                                 groupingUsed="false"  locale="en-US" />
+						</h:outputText>
+					</p:column>
+
+					<p:column headerText="Acción">
+						<p:commandButton icon="ui-icon-closethick" actionListener="#{notaCreditoMBean.eliminarFila}"
+							update=":frmNotaCredito:idTblProductos, :frmNotaCredito:pnlGrTotales">
+							<f:attribute name="PERSONA" value="#{detalle}" />
+						</p:commandButton>
+					</p:column>
+
+				</p:dataTable>
+			</fieldset>
+			<br />
+			<table width="100%">
+				<tr>
+					<td width="50%">
+						<fieldset>
+							<legend style="font-family:Verdana, Arial, sans-serif;font-size:11px;">Datos Adicionales</legend>
+							<div align="right">
+								<p:commandButton value="+" partialSubmit="true" process="@this" onclick="PF('det').show();" />
+							</div>
+							<p:dataTable  value="#{notaCreditoMBean.detallesAdicionales}" id="idTblDetAdicional" var="adicional" emptyMessage="No existen datos adicionales">
+								<p:column width="35" headerText="Nombre">
+									<p:outputLabel size="3" value="#{adicional.nombre}" />
+								</p:column>
+								<p:column width="99" headerText="Valor">
+									<p:inputText size="60" value="#{adicional.descripcion}" disabled="#{!adicional.editable}" 
+									onkeypress="if (event.keyCode == 13) {return false; };">
+									<p:ajax event="change" listener="#{notaCreditoMBean.guardarDetalleAdicional}"
+					                          	update="idTblDetAdicional"></p:ajax>  
+									
+									</p:inputText>
+								</p:column>
+								<p:column width="4">
+									<p:commandButton icon="ui-icon-closethick" actionListener="#{notaCreditoMBean.eliminarFilaAdicional}" 
+										update=":frmNotaCredito:idTblDetAdicional" 
+										disabled="#{adicional.nombre.equals('USUARIO')?'true':adicional.nombre.equals('DIRECCION')?'true':
+											adicional.nombre.equals('EMAILCLIENTE')?'true':'false'}">
+										<f:attribute name="ADICIONALDET" value="#{adicional}" />
+									</p:commandButton>
+								</p:column>
+							</p:dataTable>
+						</fieldset>
+						<fieldset>
+							<legend style="font-family:Verdana, Arial, sans-serif;font-size:11px;">Acciones</legend>
+							<center>
+								<h:panelGrid columns="3" cellpadding="5">
+									<p:commandButton action="#{notaCreditoMBean.calcularTotales}"
+										value="Calcular" update=":frmNotaCredito:pnlGrTotales, :frmNotaCredito:msg" />
+									<p:commandButton action="#{notaCreditoMBean.validar}"
+										value="Guardar" update=":frmNotaCredito:msg ,:frmNotaCredito:idTblProductos ,:frmNotaCredito:datosSujeto " />
+									<p:commandButton action="#{notaCreditoMBean.reset}" value="Nuevo"
+										update=":frmNotaCredito:msg ,frmNotaCredito" />
+								</h:panelGrid>
+							</center>
+						</fieldset> <br /> <br /> <br /> <br /> <br />
+					</td>
+					<td width="50%">
+						<fieldset>
+							<h:panelGrid columns="2" cellpadding="5" id="pnlGrTotales" style="font-family:Verdana, Arial, sans-serif;font-size:11px;">
+								<h:outputText value="SUBTOTAL SIN IMPUESTOS" />
+								<h:outputLabel value="#{notaCreditoMBean.totalSinImpuestos}" > 
+					            <f:convertNumber type="number" 
+                                 maxIntegerDigits="15"
+                                 maxFractionDigits="2" 
+								 minFractionDigits="2"
+                                 groupingUsed="false"  locale="en-US" />
+								</h:outputLabel>
+								<h:outputText value="SUBTOTAL #{notaCreditoMBean.porcentajeIvaSeleccionado}%" />
+								<h:outputLabel value="#{notaCreditoMBean.totalIva12}" > 
+					            <f:convertNumber type="number" 
+                                 maxIntegerDigits="15"
+                                 maxFractionDigits="2"
+								 minFractionDigits="2"
+                                 groupingUsed="false"  locale="en-US" />
+								</h:outputLabel>
+								<h:outputText value="SUBTOTAL NO OBJETO AL IVA" />
+								<h:outputLabel value="#{notaCreditoMBean.totalIvaNoSujeto}" > 
+					            <f:convertNumber type="number" 
+                                 maxIntegerDigits="15"
+                                 maxFractionDigits="2"
+								 minFractionDigits="2"
+                                 groupingUsed="false"  locale="en-US" />
+								</h:outputLabel>
+								<h:outputText value="SUBTOTAL EXENTO AL IVA" />
+								<h:outputLabel value="#{notaCreditoMBean.totalIvaExcento}" > 
+					            <f:convertNumber type="number" 
+                                 maxIntegerDigits="15"
+                                 maxFractionDigits="2"
+								 minFractionDigits="2"
+                                 groupingUsed="false"  locale="en-US" />
+								</h:outputLabel>
+								<h:outputText value="TOTAL DESCUENTO" />
+								<h:outputText value="#{notaCreditoMBean.totalDescuento}" readonly="true" > 
+					            <f:convertNumber type="number" 
+                                 maxIntegerDigits="15"
+                                 maxFractionDigits="2"
+								 minFractionDigits="2"
+                                 groupingUsed="false"  locale="en-US" />
+								</h:outputText>
+								<h:outputText value="VALOR ICE" />
+								<h:outputLabel value="#{notaCreditoMBean.totalIce}" > 
+					            <f:convertNumber type="number" 
+                                 maxIntegerDigits="15"
+                                 maxFractionDigits="2"
+								 minFractionDigits="2"
+                                 groupingUsed="false"  locale="en-US" />
+								</h:outputLabel>
+								<h:outputText value="VALOR IRBPNR" />
+								<h:outputLabel value="0.00" > 
+					            <f:convertNumber type="number" 
+                                 maxIntegerDigits="15"
+                                 maxFractionDigits="2"
+								 minFractionDigits="2"
+                                 groupingUsed="false"  locale="en-US" />
+								</h:outputLabel>
+								<h:outputText value="IVA #{notaCreditoMBean.porcentajeIvaSeleccionado}%" />
+								<h:outputLabel value="#{notaCreditoMBean.valorIva12}">
+									
+					            <f:convertNumber type="number" 
+                                 maxIntegerDigits="15"
+                                 maxFractionDigits="2"
+								 minFractionDigits="2"
+                                 groupingUsed="false"  locale="en-US" />
+								
+								</h:outputLabel>
+
+								<h:panelGrid columns="2" cellpadding="5" id="pnlGrCompensacion" rendered="false" >
+									<p:selectBooleanCheckbox value="#{notaCreditoMBean.aplicaCompensacion}">
+										<p:ajax	update=":frmNotaCredito:outCompensacion , :frmNotaCredito:outImporteTotal, :frmNotaCredito:pnlGrTotales"
+											listener="#{notaCreditoMBean.calcularTotales}" />
+									</p:selectBooleanCheckbox>
+									<h:outputText value="Descuento Solidario 2% " rendered="false"  />
+								</h:panelGrid>
+
+								<p:outputLabel value="#{notaCreditoMBean.totalCompensacion}" id="outCompensacion" rendered="false">
+									
+					            <f:convertNumber type="number" 
+                                 maxIntegerDigits="15"
+                                 maxFractionDigits="2"
+								 minFractionDigits="2"
+                                 groupingUsed="false"  locale="en-US" />
+								
+								</p:outputLabel>
+								
+								<h:panelGrid columns="2" cellpadding="5" id="pnlGrDinElect">
+									<p:selectBooleanCheckbox value="#{notaCreditoMBean.aplicaDinElect}">
+										<p:ajax update=":frmNotaCredito:outDinElect , :frmNotaCredito:outImporteTotal, :frmNotaCredito:pnlGrTotales"
+											listener="#{notaCreditoMBean.calcularTotales}" />
+									</p:selectBooleanCheckbox>
+									<h:outputLabel value="Descuento Dinero Eléctronico 4% " />
+								</h:panelGrid>
+
+								<p:outputLabel value="#{notaCreditoMBean.totalDinElect}" id="outDinElect">
+									<f:convertNumber type="number" 
+                                 maxIntegerDigits="15"
+                                 maxFractionDigits="2"
+								 minFractionDigits="2"
+                                 groupingUsed="false"  locale="en-US" />
+								</p:outputLabel>
+								
+								<h:panelGrid columns="2" cellpadding="5" id="pnlGrTarjCred">
+									<p:selectBooleanCheckbox value="#{notaCreditoMBean.aplicaTarjCred}">
+										<p:ajax	update=":frmNotaCredito:outTarjCred, :frmNotaCredito:outImporteTotal, :frmNotaCredito:pnlGrTotales"
+											listener="#{notaCreditoMBean.calcularTotales}" />
+									</p:selectBooleanCheckbox>
+									<h:outputLabel value="Descuento Tarjeta de Crédito 1% " />
+								</h:panelGrid>
+
+								<p:outputLabel value="#{notaCreditoMBean.totalTarjCred}" id="outTarjCred"> 
+					            <f:convertNumber type="number" 
+                                 maxIntegerDigits="15"
+                                 maxFractionDigits="2"
+								 minFractionDigits="2"
+                                 groupingUsed="false"  locale="en-US" />
+							
+								</p:outputLabel>
+								
+								<h:panelGrid columns="2" cellpadding="5" id="pnlGrTarjDeb" rendered="false">
+									<p:selectBooleanCheckbox value="#{notaCreditoMBean.aplicaTarjDeb}">
+										<p:ajax	update=":frmNotaCredito:outTarjDeb, :frmNotaCredito:outImporteTotal, :frmNotaCredito:pnlGrTotales"
+											listener="#{notaCreditoMBean.calcularTotales}" />
+									</p:selectBooleanCheckbox>
+									<h:outputText value="Descuento Tarjeta de Débito " />
+								</h:panelGrid>
+
+								<p:outputLabel value="#{notaCreditoMBean.totalTarjDeb}" id="outTarjDeb" rendered="false">
+									 <f:convertNumber type="number" 
+                                 maxIntegerDigits="15"
+                                 maxFractionDigits="2"
+								 minFractionDigits="2"
+                                 groupingUsed="false"  locale="en-US" />
+								</p:outputLabel>
+
+								<h:outputText value="VALOR TOTAL" />
+								<p:outputLabel value="#{notaCreditoMBean.importeTotal}" id="outImporteTotal">
+									
+					            <f:convertNumber type="number" 
+                                 maxIntegerDigits="15"
+                                 maxFractionDigits="2"
+								 minFractionDigits="2"
+                                 groupingUsed="false"  locale="en-US" />
+								
+								</p:outputLabel>
+							</h:panelGrid>
+						</fieldset>
+					</td>
+				</tr>
+			</table>
+			
+			<p:dialog id="idDlgCliente" widgetVar="idDlgCliente" header="Datos Cliente"
+				resizable="false"  closable="false">
+				<p:growl id="mensajesCliente"></p:growl>
+				<p:panel id="pIngCli">
+					<h:panelGrid columns="2">
+						<h:outputLabel value="Tipo Identificación: " />
+						<p:selectOneMenu filter="true" id="cmbTipoIdentificacion" value="#{notaCreditoMBean.lClienteSuscriptor.lTipoIdentificacion}"> 
+								<f:selectItem itemLabel="Cédula" itemValue="05" />
+									<f:selectItem itemLabel="Ruc" itemValue="04" />
+									<f:selectItem itemLabel="Pasaporte" itemValue="06" />
+									<f:selectItem itemLabel="Ident Exterior" itemValue="08" />
+						</p:selectOneMenu>
+						<h:outputLabel value="Identificación: " />
+						<p:inputText  value="#{notaCreditoMBean.lClienteSuscriptor.lIdentificacion}"></p:inputText>
+						<h:outputLabel value="Nombre/Razón Social: " />
+						<p:inputText value="#{notaCreditoMBean.lClienteSuscriptor.lRazonSocial}"></p:inputText>
+						<h:outputLabel value="Dirección: " />
+						<p:inputTextarea  value="#{notaCreditoMBean.lClienteSuscriptor.lDireccion}"></p:inputTextarea>
+						<h:outputLabel value="Emails Nota Crédito: " />
+						<p:inputTextarea  value="#{notaCreditoMBean.lClienteSuscriptor.lEmailsNotaCredito}"
+						title="Debe ingresar los emails, separados por ;"
+						></p:inputTextarea>
+						<p:commandButton value="Aceptar" actionListener="#{notaCreditoMBean.actualizarClienteSuscriptor}" 
+						process="pIngCli, mensajesCliente" 
+						update="frmNotaCredito:msg, frmNotaCredito:txtIdentComprador, frmNotaCredito:txtNomComprador, frmNotaCredito:idTblDetAdicional, frmNotaCredito:txtTipoDocComprador"
+						></p:commandButton>						
+					</h:panelGrid>
+
+				</p:panel>
+			</p:dialog>
+			
+			<p:dialog id="idDlgPro" widgetVar="pro" header="Ingreso de Productos" resizable="false">
+				<p:panel id="pIngPro">
+					<h:panelGrid columns="2">
+					 
+					  <h:outputText value="Código Principal" />
+					  <h:panelGrid columns="2">
+							<p:selectOneMenu filter="true"  filterMatchMode="contains" id="cmbTipoProducto" value="#{notaCreditoMBean.producto.codigoPrincipal}"  > 
+								<f:selectItem itemLabel="Seleccione Producto" itemValue="-1" />
+								<f:selectItems value="#{notaCreditoMBean.tiposProductos}" />
+								<p:ajax event="change" update="idCodigoAux,desc,prec,tipoIVA,tipoICE, uniMed" process="@this"
+									listener="#{notaCreditoMBean.setearProductoSeleccionado}" />
+							</p:selectOneMenu> 
+						</h:panelGrid>
+ 
+						<h:outputText value="Codigo Auxiliar" />
+						<p:inputText id="idCodigoAux" size="19"
+							value="#{notaCreditoMBean.producto.codigoAuxiliar}" readonly="true" />
+
+						<h:outputText value="Descripcion" />
+						<p:inputText id="desc" size="60"
+							value="#{notaCreditoMBean.producto.descripcion}" readonly="false" />
+						
+						<h:outputText value="Cantidad" />
+					  <p:spinner value="#{notaCreditoMBean.producto.cantidad}" min="0" max="900000000000000000" stepFactor="0.25" />
+						
+						<h:outputText value="Unidad Medida" />
+						<p:inputText readonly="false" id="uniMed" size="60"
+							value="#{notaCreditoMBean.producto.unidadMedida}" />
+						
+						<h:outputText value="Precio Unitario" />
+						<p:spinner  id="prec" value="#{notaCreditoMBean.producto.precioUnitario}" min="0" max="90000000000" stepFactor="0.25" />
+
+					    <h:outputText value="Tipo Iva:" />
+						<p:inputText id="tipoIVA" size="19" readonly="true"
+							value="#{notaCreditoMBean.lDescripcionIVA}" /> 
+							
+						<h:outputText value="Tipo Ice:" />
+						<p:inputText id="tipoICE" size="19" readonly="true"
+							value="#{notaCreditoMBean.lDescripcionICE}" />
+
+						<p:commandButton value="Aceptar" actionListener="#{notaCreditoMBean.validarFactura}"
+							update=":frmNotaCredito:idTblProductos,:frmNotaCredito:msg,:frmNotaCredito:idDlgPro, :frmNotaCredito:pnlGrTotales" />
+						<p:commandButton value="Cancelar" oncomplete="PF('pro').hide();" />
+					</h:panelGrid>
+				</p:panel>
+			</p:dialog>
+			
+			
+			<p:dialog id="idDlgTabProducto" widgetVar="productoTab"
+				header="Informacion de Productos" resizable="true" width="750" height="500" position="center">
+				<p:panel id="pIngProducto">
+					<h:panelGrid columns="1" style="alingth:center">
+						<p:dataTable value="#{notaCreditoMBean.listaProductos}" id="idTblProducto"
+							var="producto"   emptyMessage="No existen productos">
+							<p:column width="5" headerText="Codigo Principal" style="text-align:center;">
+								<h:outputText process="@this" size="5" value="#{producto.codigoPrincipal}" />
+							</p:column>
+							<p:column width="70" headerText="Descripcion" style="text-align:center;">
+								<h:outputText process="@this" size="200" value="#{producto.descripcion}" />
+							</p:column>
+							<p:column width="70" headerText="Precio Unitario" style="text-align:center;">
+								<h:outputText process="@this" size="200" value="#{producto.precioUnitario}" />
+							</p:column>
+						</p:dataTable>
+					</h:panelGrid>
+				</p:panel>
+			</p:dialog>
+			
+
+			<p:dialog id="idDlgDet" widgetVar="det"
+				header="Ingreso Detalle Adicional" resizable="false">
+				<p:panel id="pIngDet">
+					<h:panelGrid columns="2">
+						<h:outputText value="Nombre" />
+						<p:inputText value="#{notaCreditoMBean.adicional.nombre}" />
+						<h:outputText value="Valor" />
+						<p:inputText value="#{notaCreditoMBean.adicional.descripcion}" />
+						<p:commandButton value="Aceptar" action="#{notaCreditoMBean.guardarDetalleAdicional}" process="pIngDet"
+							update=":frmNotaCredito:idTblDetAdicional, :frmNotaCredito:idDlgDet" oncomplete="PF('det').hide();" />
+						<p:commandButton value="Cancelar" oncomplete="PF('det').hide();"></p:commandButton>
+					</h:panelGrid>
+				</p:panel>
+			</p:dialog>
+
+			<p:dialog id="idDlgTabIce" widgetVar="iceTab"
+				header="Informacion de Impuesto ICE" resizable="true" width="750"
+				height="500" position="center">
+				<p:panel id="pIngIce">
+					<h:panelGrid columns="1" style="alingth:center">
+						<p:dataTable value="#{notaCreditoMBean.listaIces}" id="idTblIce" var="ices">
+							<p:column width="5" headerText="Cantidad">
+								<h:outputText process="@this" size="5" value="#{ices.codigo}" />
+							</p:column>
+							<p:column width="70" headerText="Cantidad">
+								<h:outputText process="@this" size="200" value="#{ices.descripcion}" />
+							</p:column>
+						</p:dataTable>
+					</h:panelGrid>
+				</p:panel>
+			</p:dialog>		 
+  
+
+		<p:remoteCommand name="frmNotaCredito" autoRun="true" action="#{notaCreditoMBean.init()}"  update ="frmNotaCredito:cbmRuc, frmNotaCredito:outRazonSocial, 
+		frmNotaCredito:cmbEmiEstab, frmNotaCredito:datosSujeto, frmNotaCredito:comprobanteVenta, frmNotaCredito:idTblDetAdicional,  frmNotaCredito:pnlGrTotales"/>   
+					
+			
+		</h:form>
+		   
+		
+		<p:dialog header="Buscar por Razón Social" widgetVar="dlgRazonSocial"
+			height="250" position="center center" id="dlgRazonSocial"
+			closable="true" closeOnEscape="true" modal="true" appendTo="@(body)"
+			resizable="false" showEffect="clip" hideEffect="clip" width="450">
+			<h:form id="dialogoBusqueda">
+				<p:message for="rruc" id="txtMensaje"  />
+				<h:panelGrid columns="3" id="idCriterios">
+					<h:outputText value="Razón Social:" />
+					<p:inputText value="#{notaCreditoMBean.razonSocialBuscar}" required="true" id="rruc" requiredMessage="Ingrese el nombre de un cliente/proveedor"/>
+					<p:commandButton icon="ui-icon-search"
+						actionListener="#{notaCreditoMBean.consultaRazonSocial}"
+						process="idCriterios" partialSubmit="true"
+						update="frmNotaCredito:txtIdentComprador,txtMensaje,idTablaResultado" />
+				</h:panelGrid>
+
+				<p:dataTable id="idTablaResultado"
+					value="#{notaCreditoMBean.lListaClienteSuscriptor}"
+					rows="5" var="proveedores" paginatorPosition="bottom"
+					rowKey="#{proveedores.lIdentificacion}"
+					selectionMode="single"
+					selection="#{notaCreditoMBean.lClienteSuscriptorSeleccionado}"
+					paginator="true" emptyMessage="No se han encontrado registros">
+
+
+					<p:ajax event="rowSelect"
+						listener="#{notaCreditoMBean.controladorEvento}"
+						update="frmNotaCredito:msg, frmNotaCredito:txtIdentComprador, frmNotaCredito:txtNomComprador, frmNotaCredito:idTblDetAdicional, frmNotaCredito:txtTipoDocComprador" oncomplete="PF('dlgRazonSocial').hide();" />
+
+					<p:column headerText="Razón Social"
+						style="width:100%; text-align:left;">
+						<h:outputText value="#{proveedores.lRazonSocial}" />
+					</p:column>
+					
+					<p:column headerText=" No- Identificación"
+						style="width:100%; text-align:left;">
+						<h:outputText value="#{proveedores.lIdentificacion}" />
+					</p:column>
+
+
+				</p:dataTable>
+			</h:form> 
+		</p:dialog>
+		
+		<script type="text/javascript">  
+                        function validarDialogo(xhr, status, args) {  
+                        	if(args.validationFailed || !args.todocorrecto) {
+                                PF('pro').jq.effect("shake", {times:5}, 100);
+                            } else {   
+                            	PF('pro').hide();
+                                $('#loginLink').fadeOut();   
+                            }   
+                        }   
+                    </script>
+	</ui:define>
+
+</ui:composition>

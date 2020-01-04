@@ -1,0 +1,178 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	template="/WEB-INF/template_mantenedor.xhtml">
+
+	<ui:define name="head">
+		<h:outputText value="Gestión de Impuestos"></h:outputText>
+		<style>
+			.combo
+			{
+				max-width: 100% !important;
+			}
+		
+		</style>
+	</ui:define>
+
+
+	<ui:define name="subheader">
+		<h:outputText value="Datos Generales de Impuestos"></h:outputText>
+	</ui:define>
+
+	<ui:define name="titulo_tab">
+		<h:outputText value="Datos Generales de Impuestos"></h:outputText>
+	</ui:define>
+
+	<ui:define name="cab_formulario">
+		<h:outputText value="Datos Generales de Impuestos"></h:outputText>
+	</ui:define>
+
+	<ui:define name="grid_formulario">
+
+		<p:panelGrid columns="2" layout="grid"
+			style="border:0px !important; background:none;" id="panel">
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="Código:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder="Código"
+					value="#{impuestosMBean.lDatoImpuesto.lCodigoImpuesto}" id="txtCod"
+					required="true" requiredMessage="El campo Código es requerido"
+					onblur="ChangeCase(this);">
+				</p:inputText>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="Porcentaje:" />
+				</div>
+
+				<p:spinner id="txtPorcentaje"
+					value="#{impuestosMBean.lDatoImpuesto.lPorcentaje}" stepFactor="0.1"
+					min="0" max="100" required="true"
+					requiredMessage="El campo Porcentaje es requerido"
+					styleClass="Wid70" placeholder="Porcentaje" />
+
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="Tipo Impuesto:" />
+				</div>
+
+				<p:selectOneMenu id="tipoImpuesto" styleClass="combo"
+					value="#{impuestosMBean.lDatoImpuesto.lTipoImpuesto}">
+					<f:selectItem itemLabel="Seleccione" itemValue="-1" />
+					<f:selectItem itemLabel="I.C.E." itemValue="ICE" />
+					<f:selectItem itemLabel="I.V.A." itemValue="IVA" />
+					<f:selectItem itemLabel="I.V.A. Retencion" itemValue="RET-IVA" />
+					<f:selectItem itemLabel="Impuesto a la Renta" itemValue="RET-IR" />
+					<f:selectItem itemLabel="Convenio de Debito" itemValue="RET-CDE" />
+					<f:selectItem itemLabel="Impuesto Salida Divisas"
+						itemValue="RET-ISD" />
+					<f:selectItem itemLabel="Ret. Rendimiento Financiero"
+						itemValue="RET-RRF" />
+				</p:selectOneMenu>
+
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="Descripción:" />
+				</div>
+				<p:inputTextarea styleClass="Wid70" placeholder="Descripción"
+					value="#{impuestosMBean.lDatoImpuesto.lDescripcion}"
+					id="txtDescripcion" required="true"
+					requiredMessage="El campo Descripción es requerido"
+					onblur="ChangeCase(this);">
+				</p:inputTextarea>
+			</pe:fluidGridItem>
+		</p:panelGrid>
+		
+		<p:commandButton value="Cancelar" styleClass="RedButton"
+			update="panel" process="@this">
+			<p:resetInput target=":#{p:component('contenedor')}" />
+		</p:commandButton>
+		<p:commandButton value="Registrar" styleClass="CyanButton"
+			actionListener="#{impuestosMBean.registrarImpuesto}"
+			process="contenedor"
+			update="@form" 
+		/>
+	</ui:define>
+
+	<ui:define name="cab_tabla_datos">
+		Impuestos Registrados
+	</ui:define>
+
+	<ui:define name="tabla_datos">
+	
+		<p:dataTable value="#{impuestosMBean.lListaImpuesto}"
+			var="datListaImpuesto"
+			emptyMessage="#{beanMantendorFactEmpresa.mensajeTablaVacia}" rows="15"
+			reflow="true" paginator="true" paginatorPosition="bottom"
+			id="tablaDatos" paginatorAlwaysVisible="false">	
+		
+			<p:column headerText="Tipo Impuesto"
+				filterBy="#{datListaImpuesto.lTipoImpuesto}"
+				filterStyle="width: 100px;" width="20%">
+				<h:outputText value="#{datListaImpuesto.lTipoImpuesto}"></h:outputText>
+			</p:column>
+
+			<p:column headerText="Descripción"
+				filterBy="#{datListaImpuesto.lDescripcion}"
+				filterStyle="width: 150px;" width="20%">
+				<h:outputText value="#{datListaImpuesto.lDescripcion}"></h:outputText>
+			</p:column>
+
+			<p:column headerText="Código" width="10%"
+				filterBy="#{datListaImpuesto.lCodigoImpuesto}"
+				filterStyle="width: 50px;">
+				<center>
+					<h:outputText value="#{datListaImpuesto.lCodigoImpuesto}"></h:outputText>
+				</center>
+			</p:column>
+			<p:column headerText="Porcentaje" width="10%">
+				<center>
+					<h:outputText value="#{datListaImpuesto.lPorcentaje}"></h:outputText>
+				</center>
+			</p:column>
+
+			<p:column headerText="Estado" width="10%">
+				<center>
+					<h:outputText
+						value="#{datListaImpuesto.estado eq 'A'?'Activo':'Inactivo'}"></h:outputText>
+				</center>
+			</p:column>
+
+
+			<p:column headerText="Acciones" width="10%">
+				<p:panelGrid columns="2" style="border : none; background : none;">
+					<p:commandLink title="Actualizar" process="@this"
+						update=":#{p:component('contenedor')}"
+						actionListener="#{impuestosMBean.actualizarImpuesto}">
+						<i class="fa fa-edit Fs20 BoldGray DispBlock"> </i>
+						<f:attribute name="IMPUESTO" value="#{datListaImpuesto}" />
+					</p:commandLink>
+					
+					
+					<p:commandLink title="Inactivar"  
+						actionListener="#{impuestosMBean.eliminarImpuesto}" process="@this"
+						update=":#{p:component('tablaDatos')}">
+						<i class="fa fa-exchange Fs20 BoldGray DispBlock"> </i>
+						<f:attribute name="IMPUESTO" value="#{datListaImpuesto}" />
+						<p:confirm header="Confirmación"
+							message="Desea cambiar el estado de este impuesto?"
+							icon="ui-icon-alert" />
+					</p:commandLink>
+				</p:panelGrid>
+			</p:column>
+
+		</p:dataTable>
+	</ui:define>
+
+</ui:composition>
+

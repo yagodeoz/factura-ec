@@ -1,0 +1,325 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	template="/WEB-INF/template_mantenedor.xhtml">
+
+
+	<ui:define name="head">
+		<title>#{beanMantendorFactEmpresa.tituloPagina}</title>
+	</ui:define>
+	<ui:define name="subheader">
+       #{beanMantendorFactEmpresa.descripcionPagina}
+    </ui:define>
+
+	<ui:define name="titulo_tab">
+		#{beanMantendorFactEmpresa.tab}
+	</ui:define>
+	<ui:define name="cab_formulario">		
+		#{beanMantendorFactEmpresa.ayudaPagina}
+	</ui:define>
+	<ui:define name="grid_formulario">
+		<p:panelGrid columns="2" layout="grid"
+			style="border:0px !important; background:none;" id="panel">
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Nombre/Razón Social:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder="Nombre/Razón Social "
+					value="#{beanMantendorFactEmpresa.entidadRegistrar.lRazonSocial}"
+					id="RazonSocial" required="true" onblur="ChangeCase(this);" />
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* RUC:" />
+				</div>
+				<p:inputMask mask="9?999999999999" maxlength="13" styleClass="Wid70"
+					placeholder="Identificación"
+					value="#{beanMantendorFactEmpresa.entidadRegistrar.lIdentificacion}"
+					required="true" id="Identificacion">
+				</p:inputMask>
+			</pe:fluidGridItem>
+			
+			
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Email Remitente:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder="Email Remitente"
+					value="#{beanMantendorFactEmpresa.entidadRegistrar.lCuentaRemitente}"
+					id="EmailRemitente" required="true" />
+			</pe:fluidGridItem>
+			
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Email Copia:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder="Email Copia"
+					value="#{beanMantendorFactEmpresa.entidadRegistrar.lCuentaCopia}"
+					id="EmailCopia" required="true" />
+			</pe:fluidGridItem>
+			
+		</p:panelGrid>
+
+		<p:commandButton value="Cancelar" styleClass="RedButton"
+			update="panel" process="@this">
+			<p:resetInput target="panel" />
+		</p:commandButton>
+		<p:commandButton value="Registrar" styleClass="CyanButton"
+			actionListener="#{beanMantendorFactEmpresa.guardarOActualizar}"
+			process="contenedor"
+			update=":#{p:component('contenedor')}, :#{p:component('mensajeGlobal')}, :#{p:component('tablaDatos')}, :#{p:component('dialogoMantenimiento')}" />
+	</ui:define>
+
+	<ui:define name="cab_tabla_datos">
+		#{beanMantendorFactEmpresa.cabeceraTabla}
+	</ui:define>
+
+	<ui:define name="tabla_datos">
+		<p:dataTable value="#{beanMantendorFactEmpresa.listaEntidades}"
+			var="cargo"
+			emptyMessage="#{beanMantendorFactEmpresa.mensajeTablaVacia}" rows="8"
+			reflow="true" paginator="true" paginatorPosition="bottom"
+			id="tablaDatos" paginatorAlwaysVisible="false">
+
+
+			<p:column headerText="Nombre/Razón Social" width="20%">
+				<h:outputText value="#{cargo.lRazonSocial}" />
+			</p:column>
+
+			<p:column headerText="RUC" width="10%">
+				<h:outputText value="#{cargo.lIdentificacion}" />
+			</p:column>
+			
+			<p:column headerText="Cuenta Remitente" width="15%">
+				<h:outputText value="#{cargo.lCuentaRemitente}" />
+			</p:column>
+			
+			<p:column headerText="Cuenta Copia" width="15%">
+				<h:outputText value="#{cargo.lCuentaRemitente}" />
+			</p:column>
+
+			
+			<p:column headerText="Estado" width="6%">
+				<h:outputText
+					value="#{cargo.estado eq beanMantendorFactEmpresa.estadoActivo?'ACTIVO':'INACTIVO'}" />
+			</p:column>
+
+
+			<p:column headerText="Fecha Registro" width="10%">
+				<h:outputText value="#{cargo.fechaRegistro}">
+					<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"
+						timeZone="#{beanMantendorFactEmpresa.currentTimeZone}" />
+				</h:outputText>
+			</p:column>
+
+			<p:column headerText="Acciones" width="9%">
+
+				<p:panelGrid columns="2">
+
+					<p:commandLink title="Actualizar"
+						actionListener="#{beanMantendorFactEmpresa.actualizarEntidad}"
+						update=":#{p:component('dialogoMantenimiento')}" process="@this">
+
+						<i class="fa fa-edit Fs20 BoldGray DispBlock"> </i>
+
+						<f:attribute
+							name="#{beanMantendorFactEmpresa.nombreAtributoCambioEstado}"
+							value="#{cargo}"></f:attribute>
+
+					</p:commandLink>
+					<p:commandLink title="Cambiar Estado"
+						actionListener="#{beanMantendorFactEmpresa.cambiarEstado}"
+						update="@form" process="@this">
+						<i
+							class="#{cargo.estado eq beanMantendorFactEmpresa.estadoActivo ? 'fa fa-toggle-on' : 'fa fa-toggle-off' } Fs20 BoldGray DispBlock"></i>
+						<f:attribute
+							name="#{beanMantendorFactEmpresa.nombreAtributoCambioEstado}"
+							value="#{cargo}"></f:attribute>
+
+						<p:confirm header="Confirmación"
+							message="Seguro que desea realizar esta operación?"
+							icon="ui-icon-alert" />
+					</p:commandLink>
+
+					<p:commandLink title="Subir Certificado"
+						actionListener="#{beanMantendorFactEmpresa.subirCertificado}"
+						update=":#{p:component('dialogoCertificado')}" process="@this"
+						oncomplete="PF('dialogoCertificado').show();">
+						<i class="fa fa-file-code-o Fs20 BoldGray DispBlock"> </i>
+						<f:attribute name="EMPRESA" value="#{cargo}"></f:attribute>
+					</p:commandLink>
+					
+					<p:commandLink title="Subir Logo"
+						actionListener="#{beanMantendorFactEmpresa.subirLogo}"
+						update=":#{p:component('dialogoLogo')}" process="@this"
+						oncomplete="PF('dialogoLogo').show();">
+						<i class="fa fa-file-image-o Fs20 BoldGray DispBlock"> </i>
+						<f:attribute name="EMPRESA" value="#{cargo}"></f:attribute>
+					</p:commandLink>
+					
+					<p:commandLink title="Administrar Usuarios Consulta"
+						actionListener="#{beanMantendorFactEmpresa.asignarUsuarios}"
+						update=":#{p:component('dialogoUsuariosAsignados')}" process="@this"
+						oncomplete="PF('dialogoUsuariosAsignados').show();">
+						<i class="fa fa-user-plus Fs20 BoldGray DispBlock"> </i>
+						<f:attribute name="EMPRESA" value="#{cargo}"></f:attribute>
+					</p:commandLink>
+					
+				</p:panelGrid>
+			</p:column>
+
+		</p:dataTable>
+
+
+
+		<p:dialog
+			header="Datos Certificado Empresa: #{beanMantendorFactEmpresa.entidadRegistrar.lRazonSocial}"
+			widgetVar="dialogoCertificado" id="dialogoCertificado" modal="true"
+			width="40%">
+
+			<p:panelGrid columns="2" layout="grid" id="panelCertificado">
+				
+				<h:outputText value="Clave:" />
+				<p:inputText placeholder="Clave Certificado" styleClass="Wid70"
+					required="true"
+					value="#{beanMantendorFactEmpresa.lClave}"
+					requiredMessage="Debe ingresar la clave del certificado"
+					id="claveCertificado">
+				
+					<p:ajax process="@this" update="@none"></p:ajax>	
+				</p:inputText>
+			</p:panelGrid>
+			
+			<p:fileUpload skinSimple="true" uploadLabel="Subir"
+				label="Seleccione" allowTypes="/(\.|\/)(p12)$/"
+				invalidFileMessage="El tipo de archivo seleccionado no es válido, seleccione archivos con formato p12"
+				multiple="false" mode="advanced" sizeLimit="2097152"
+				showButtons="false"
+				fileUploadListener="#{beanMantendorFactEmpresa.actualizarArchivo}"
+				process=":#{p:component('panelCertificado')}"
+				update=":#{p:component('mensajeGlobal')}, :#{p:component('tablaDatos')}" />
+				
+		</p:dialog>
+		
+		
+		<p:dialog
+			header="Logo Empresa: #{beanMantendorFactEmpresa.entidadRegistrar.lRazonSocial}"
+			widgetVar="dialogoLogo" id="dialogoLogo" modal="true"
+			width="40%">
+			<p:fileUpload skinSimple="true" uploadLabel="Subir"
+				label="Seleccione" allowTypes="/(\.|\/)(jpg)$/"
+				invalidFileMessage="El tipo de archivo seleccionado no es válido, seleccione archivos con formato jpg"
+				multiple="false" mode="advanced" sizeLimit="10097152"
+				showButtons="false"
+				fileUploadListener="#{beanMantendorFactEmpresa.actualizarLogo}"
+				process="@this"
+				update=":#{p:component('mensajeGlobal')}, :#{p:component('tablaDatos')}" />
+				
+		</p:dialog>
+		
+		
+		<p:dialog
+			header="Usuarios Asignados: #{beanMantendorFactEmpresa.entidadRegistrar.lRazonSocial}"
+			widgetVar="dialogoUsuariosAsignados" id="dialogoUsuariosAsignados" modal="true"
+			width="40%">
+		
+			
+			<p:panel 
+				style="border:0px !important; background:none;"
+				id="panelUsuariosAsignados">
+				<p:pickList id="listaUsuariosAsignacion" value="#{beanMantendorFactEmpresa.listaSeleccionUsuario}"
+					var="usuarioAsignacion" effect="bounce" itemValue="#{usuarioAsignacion}"
+					itemLabel="#{usuarioAsignacion}" showSourceControls="true"
+					showTargetControls="true" showCheckbox="true" responsive="true"
+					showSourceFilter="true" showTargetFilter="true"
+					filterMatchMode="contains" >
+
+					<f:facet name="sourceCaption">Usuarios por asignar</f:facet>
+					<f:facet name="targetCaption">Usuarios Asignados</f:facet>
+					<p:ajax event="transfer" listener="#{beanMantendorFactEmpresa.controlTransferencia}" update="panelUsuariosAsignados" />
+					
+					<p:column style="width:90%;">
+						<h:outputText value="#{usuarioAsignacion}" />
+					</p:column>
+				</p:pickList>
+			</p:panel>
+		
+				
+		</p:dialog>
+
+
+	</ui:define>
+
+	<ui:define name="cab_dialogo">
+		#{beanMantendorFactEmpresa.cabeceraDialogo}
+	</ui:define>
+	<ui:define name="cab_panel_dialogo">
+#{beanMantendorFactEmpresa.cabeceraPanelDialogo}
+</ui:define>
+
+	<ui:define name="datos_dialogo">
+		<p:panelGrid columns="2" layout="grid"
+			style="border:0px !important; background:none;" id="panel">
+
+		<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Nombre/Razón Social:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder="Nombre/Razón Social "
+					value="#{beanMantendorFactEmpresa.entidadRegistrar.lRazonSocial}"
+					id="RazonSocial" required="true" onblur="ChangeCase(this);" />
+
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* RUC:" />
+				</div>
+				<p:inputMask mask="9?999999999999" maxlength="13" styleClass="Wid70"
+					placeholder="Identificación"
+					value="#{beanMantendorFactEmpresa.entidadRegistrar.lIdentificacion}"
+					required="true" id="Identificacion">
+				</p:inputMask>
+			</pe:fluidGridItem>
+			
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Email Remitente:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder="Email Remitente"
+					value="#{beanMantendorFactEmpresa.entidadRegistrar.lCuentaRemitente}"
+					id="EmailRemitente" required="true" />
+			</pe:fluidGridItem>
+			
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Email Copia:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder="Email Copia"
+					value="#{beanMantendorFactEmpresa.entidadRegistrar.lCuentaCopia}"
+					id="EmailCopia" required="true" />
+			</pe:fluidGridItem>
+			
+		</p:panelGrid>
+
+		<p:commandButton value="Actualizar" styleClass="CyanButton"
+			actionListener="#{beanMantendorFactEmpresa.guardarOActualizar}"
+			process="PanelActualizar"
+			update=":#{p:component('mensajeGlobal')}, :#{p:component('tablaDatos')}">
+			<p:confirm header="Confirmación"
+				message="Seguro que desea realizar esta operación?"
+				icon="ui-icon-alert" />
+		</p:commandButton>
+
+	</ui:define>
+
+	<ui:define name="control_dialogo">
+		<p:ajax event="close" update=":#{p:component('panel')}"
+			listener="#{beanMantendorFactEmpresa.eventoControlCierreDialogo}" />
+	</ui:define>
+
+</ui:composition>

@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	template="#{configuracionesGeneralesMB.getValorConstanteConfiguracion('RUTA_TEMPLATE_GENERAL')}">
+	
+	<ui:define name="SEGM_TITLE">
+		<h:outputText value="#{configuracionesGeneralesMB.tituloAplicacion}" />
+	</ui:define>
+
+	<ui:define name="SEGM_CONTENIDO_OPCIONES_TITULO">
+		<h:outputText value="Ingreso de Facturas" />
+	</ui:define>
+
+	<ui:define name="SEGM_CONTENIDO_OPCIONES">
+	
+		<iframe src="http://192.168.0.241:9998/seed-comprobantes-web/paginas/pag_guias_remision.jsf" frameborder="0" align="top" marginheight="0" 
+			marginwidth="0" scrolling="auto" height="100%" width="100%" >			
+		</iframe>
+		
+	</ui:define>
+
+</ui:composition>

@@ -1,0 +1,413 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	template="/WEB-INF/template_mantenedor.xhtml">
+
+
+	<ui:define name="head">
+		<title>#{beanMantenedorCliente.tituloPagina}</title>
+	</ui:define>
+	<ui:define name="subheader">
+       #{beanMantenedorCliente.descripcionPagina}
+    </ui:define>
+
+	<ui:define name="titulo_tab">
+		#{beanMantenedorCliente.tab}
+	</ui:define>
+	<ui:define name="cab_formulario">		
+		#{beanMantenedorCliente.ayudaPagina}
+	</ui:define>
+	<ui:define name="grid_formulario">
+		<p:messages id="mensajesForm" closable="true" showDetail="false"></p:messages>
+		<pe:fluidGridItem type="input">
+			<div class="dynaFormLabel">
+				<p:outputLabel value="Tipo Cliente:" />
+			</div>
+			<p:selectOneMenu
+				value="#{beanMantenedorCliente.entidadRegistrar.lTipoCliente}">
+				<f:selectItem noSelectionOption="true" itemLabel="Seleccione" />
+				<f:selectItem itemLabel="Natural" itemValue="N" />
+				<f:selectItem itemLabel="Juridico" itemValue="J" />
+				<p:ajax event="change" update="@form" process="@this"
+					listener="#{beanMantenedorCliente.gestionarTipoCliente}" />
+			</p:selectOneMenu>
+		</pe:fluidGridItem>
+
+		<p:outputPanel id="panel"
+			rendered="#{beanMantenedorCliente.lPresentarPanel}">
+
+
+			<p:panelGrid columns="2" layout="grid"
+				style="border:0px !important; background:none;">
+
+				<p:outputPanel
+					rendered="#{beanMantenedorCliente.entidadRegistrar.lTipoCliente eq 'N'}">
+					<pe:fluidGridItem type="input">
+						<div class="dynaFormLabel">
+							<p:outputLabel value="* Nombres:" />
+						</div>
+						<p:inputText styleClass="Wid70" placeholder="Nombres "
+							value="#{beanMantenedorCliente.entidadRegistrar.lNombres}"
+							id="Nombres" required="true" onblur="ChangeCase(this);"
+							requiredMessage="Debe ingresar el nombre del cliente">
+							<p:ajax event="blur" process="@this"
+								update=":#{p:component('mensajesForm')}"></p:ajax>
+						</p:inputText>
+
+					</pe:fluidGridItem>
+				</p:outputPanel>
+				<p:outputPanel
+					rendered="#{beanMantenedorCliente.entidadRegistrar.lTipoCliente eq 'N'}">
+					<pe:fluidGridItem type="input">
+						<div class="dynaFormLabel">
+							<p:outputLabel value="* Apellidos:" />
+						</div>
+						<p:inputText styleClass="Wid70" placeholder="Apellidos "
+							value="#{beanMantenedorCliente.entidadRegistrar.lApellidos}"
+							id="Apellidos" required="true" onblur="ChangeCase(this);"
+							requiredMessage="Debe ingresar el apellido del cliente">
+							<p:ajax event="blur" process="@this"
+								update=":#{p:component('mensajesForm')}"></p:ajax>
+						</p:inputText>
+					</pe:fluidGridItem>
+				</p:outputPanel>
+				<p:outputPanel
+					rendered="#{beanMantenedorCliente.entidadRegistrar.lTipoCliente eq 'N'}">
+					<pe:fluidGridItem type="input">
+						<div class="dynaFormLabel">
+							<p:outputLabel value="Tipo Identificación:" />
+						</div>
+						<p:selectOneMenu
+							value="#{beanMantenedorCliente.entidadRegistrar.lTipoIdentificacion}">
+							<f:selectItem noSelectionOption="true" itemLabel="Seleccione" />
+							<f:selectItem itemLabel="RUC" itemValue="1" />
+							<f:selectItem itemLabel="Cédula" itemValue="2" />
+							<f:selectItem itemLabel="Pasaporte" itemValue="3" />
+							<p:ajax event="change" update="@form" process="@this"
+								listener="#{beanMantenedorCliente.gestionarTipoIdentificacion}" />
+						</p:selectOneMenu>
+					</pe:fluidGridItem>
+				</p:outputPanel>
+
+				<p:outputPanel
+					rendered="#{beanMantenedorCliente.entidadRegistrar.lTipoCliente eq 'J'}">
+					<pe:fluidGridItem type="input">
+						<div class="dynaFormLabel">
+							<p:outputLabel value="* Razón Social:" />
+						</div>
+						<p:inputText styleClass="Wid70" placeholder="Razón Social "
+							value="#{beanMantenedorCliente.entidadRegistrar.lRazonSocial}"
+							id="Razon" required="true" onblur="ChangeCase(this);"
+							requiredMessage="Debe ingresar la razón social">
+							<p:ajax event="blur" process="@this" update="@form"></p:ajax>
+						</p:inputText>
+					</pe:fluidGridItem>
+				</p:outputPanel>
+
+				<p:outputPanel
+					rendered="#{beanMantenedorCliente.entidadRegistrar.lTipoCliente eq 'J'}">
+					<pe:fluidGridItem type="input">
+						<div class="dynaFormLabel">
+							<p:outputLabel value="Tipo Identificación:" />
+						</div>
+						<p:selectOneMenu
+							value="#{beanMantenedorCliente.entidadRegistrar.lTipoIdentificacion}">
+							<f:selectItem itemLabel="RUC" itemValue="1" />
+						</p:selectOneMenu>
+					</pe:fluidGridItem>
+				</p:outputPanel>
+
+				<pe:fluidGridItem type="input">
+					<div class="dynaFormLabel">
+						<p:outputLabel value="* Identificación:" />
+					</div>
+					<p:inputText styleClass="Wid70" placeholder="Identificación"
+						value="#{beanMantenedorCliente.entidadRegistrar.lIdentificacion}"
+						required="true" id="Identificacion"
+						validatorMessage="El valor ingresado no cuenta con el tipo de documento seleccionado"
+						requiredMessage="Debe ingresar la identificación">
+						<f:validateRegex
+							pattern="#{beanMantenedorCliente.lExpresionRegular}" />
+						<p:ajax event="blur" process="@this" update="@form"
+							listener="#{beanMantenedorCliente.buscarClienteExistente}"></p:ajax>
+						
+					</p:inputText>
+				</pe:fluidGridItem>
+
+
+				<pe:fluidGridItem type="input">
+					<div class="dynaFormLabel">
+						<p:outputLabel value="* Email:" />
+					</div>
+					<p:inputText styleClass="Wid70" placeholder="Email"
+						value="#{beanMantenedorCliente.entidadRegistrar.lEmail}"
+						id="Email" required="true"
+						requiredMessage="Debe ingresar el email del cliente"
+						validatorMessage="El email no tiene el formato correcto"
+						>
+						<p:ajax event="blur" process="@this"
+							update=":#{p:component('mensajesForm')}"></p:ajax>
+						<f:validateRegex
+							pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />	
+					</p:inputText>
+				</pe:fluidGridItem>
+
+				<pe:fluidGridItem type="input">
+					<div class="dynaFormLabel">
+						<p:outputLabel value="* Celular:" />
+					</div>
+					<p:inputText styleClass="Wid70" placeholder="Celular"
+						value="#{beanMantenedorCliente.entidadRegistrar.lCelular}"
+						id="Celular" />
+				</pe:fluidGridItem>
+
+				<pe:fluidGridItem type="input">
+					<div class="dynaFormLabel">
+						<p:outputLabel value="* Dirección:" />
+					</div>
+					<p:inputTextarea styleClass="Wid70" placeholder="Dirección"
+						value="#{beanMantenedorCliente.entidadRegistrar.lDireccion}"
+						id="Direccion" required="true" onblur="ChangeCase(this);"
+						requiredMessage="Debe ingresar la dirección del cliente">
+						<p:ajax event="blur" process="@this"
+							update=":#{p:component('mensajesForm')}"></p:ajax>
+					</p:inputTextarea>
+				</pe:fluidGridItem>
+
+
+
+			</p:panelGrid>
+
+		</p:outputPanel>
+
+		<p:commandButton value="Cancelar" styleClass="RedButton"
+			update="panel" process="@this">
+			<p:resetInput target="panel" />
+		</p:commandButton>
+		<p:commandButton value="Registrar" styleClass="CyanButton"
+			actionListener="#{beanMantenedorCliente.guardarOActualizar}"
+			process="contenedor"
+			update=":#{p:component('contenedor')}, :#{p:component('mensajeGlobal')}, :#{p:component('tablaDatos')}, :#{p:component('dialogoMantenimiento')}" />
+	</ui:define>
+
+	<ui:define name="cab_tabla_datos">
+		#{beanMantenedorCliente.cabeceraTabla}
+	</ui:define>
+
+	<ui:define name="tabla_datos">
+		<p:dataTable value="#{beanMantenedorCliente.listaEntidades}"
+			var="cargo" emptyMessage="#{beanMantenedorCliente.mensajeTablaVacia}"
+			rows="8" reflow="true" paginator="true" paginatorPosition="bottom"
+			id="tablaDatos" paginatorAlwaysVisible="false">
+
+			<p:column headerText="Tipo Cliente" width="7%">
+				<h:outputText
+					value="#{cargo.lTipoCliente  eq 'N'? 'Natural' : 'Jurídico'}" />
+			</p:column>
+
+			<p:column headerText="Nombres Completos / Razón Social" width="20%">
+				<h:outputText value="#{cargo}" />
+			</p:column>
+
+
+			<p:column headerText="Tipo Ident." width="10%">
+				<h:outputText value="#{cargo.lNombreTipoDocumento}" />
+			</p:column>
+
+			<p:column headerText="Identificación" width="10%">
+				<h:outputText value="#{cargo.lIdentificacion}" />
+			</p:column>
+
+			<p:column headerText="Email" width="15%">
+				<h:outputText value="#{cargo.lEmail}" />
+			</p:column>
+
+			<p:column headerText="Estado" width="6%">
+				<h:outputText
+					value="#{cargo.estado eq beanMantenedorCliente.estadoActivo?'ACTIVO':'INACTIVO'}" />
+			</p:column>
+
+
+			<p:column headerText="Fecha Registro" width="10%">
+				<h:outputText value="#{cargo.fechaRegistro}">
+					<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"
+						timeZone="#{beanMantenedorCliente.currentTimeZone}" />
+				</h:outputText>
+			</p:column>
+
+			<p:column headerText="Acciones" width="9%">
+
+				<p:panelGrid columns="2">
+
+					<p:commandLink title="Actualizar"
+						actionListener="#{beanMantenedorCliente.actualizarEntidad}"
+						update=":#{p:component('dialogoMantenimiento')}" process="@this">
+
+						<i class="fa fa-edit Fs20 BoldGray DispBlock"> </i>
+
+						<f:attribute
+							name="#{beanMantenedorCliente.nombreAtributoCambioEstado}"
+							value="#{cargo}"></f:attribute>
+
+					</p:commandLink>
+					<p:commandLink title="Cambiar Estado"
+						actionListener="#{beanMantenedorCliente.cambiarEstado}"
+						update="@form" process="@this">
+						<i
+							class="#{cargo.estado eq beanMantenedorCliente.estadoActivo ? 'fa fa-toggle-on' : 'fa fa-toggle-off' } Fs20 BoldGray DispBlock"></i>
+						<f:attribute
+							name="#{beanMantenedorCliente.nombreAtributoCambioEstado}"
+							value="#{cargo}"></f:attribute>
+
+						<p:confirm header="Confirmación"
+							message="Seguro que desea realizar esta operación?"
+							icon="ui-icon-alert" />
+					</p:commandLink>
+				</p:panelGrid>
+			</p:column>
+
+		</p:dataTable>
+
+	</ui:define>
+
+	<ui:define name="cab_dialogo">
+		#{beanMantenedorCliente.cabeceraDialogo}
+	</ui:define>
+	<ui:define name="cab_panel_dialogo">
+#{beanMantenedorCliente.cabeceraPanelDialogo}
+</ui:define>
+
+	<ui:define name="datos_dialogo">
+
+
+		<p:panelGrid columns="2" layout="grid" id="panel"
+			style="border:0px !important; background:none;">
+
+			<p:outputPanel
+				rendered="#{beanMantenedorCliente.entidadRegistrar.lTipoCliente eq 'N'}">
+				<pe:fluidGridItem type="input">
+					<div class="dynaFormLabel">
+						<p:outputLabel value="* Nombres:" />
+					</div>
+					<p:inputText styleClass="Wid70" placeholder="Nombres "
+						value="#{beanMantenedorCliente.entidadRegistrar.lNombres}"
+						id="Nombres" required="true" onblur="ChangeCase(this);" />
+				</pe:fluidGridItem>
+			</p:outputPanel>
+			<p:outputPanel
+				rendered="#{beanMantenedorCliente.entidadRegistrar.lTipoCliente eq 'N'}">
+				<pe:fluidGridItem type="input">
+					<div class="dynaFormLabel">
+						<p:outputLabel value="* Apellidos:" />
+					</div>
+					<p:inputText styleClass="Wid70" placeholder="Apellidos "
+						value="#{beanMantenedorCliente.entidadRegistrar.lApellidos}"
+						id="Apellidos" required="true" onblur="ChangeCase(this);" />
+				</pe:fluidGridItem>
+			</p:outputPanel>
+			<p:outputPanel
+				rendered="#{beanMantenedorCliente.entidadRegistrar.lTipoCliente eq 'N'}">
+				<pe:fluidGridItem type="input">
+					<div class="dynaFormLabel">
+						<p:outputLabel value="Tipo Identificación:" />
+					</div>
+					<p:selectOneMenu
+						value="#{beanMantenedorCliente.entidadRegistrar.lTipoIdentificacion}">
+						<f:selectItem noSelectionOption="true" itemLabel="Seleccione" />
+						<f:selectItem itemLabel="Cédula" itemValue="2" />
+						<f:selectItem itemLabel="RUC" itemValue="1" />
+						<f:selectItem itemLabel="Pasaporte" itemValue="3" />
+					</p:selectOneMenu>
+				</pe:fluidGridItem>
+			</p:outputPanel>
+
+			<p:outputPanel
+				rendered="#{beanMantenedorCliente.entidadRegistrar.lTipoCliente eq 'J'}">
+				<pe:fluidGridItem type="input">
+					<div class="dynaFormLabel">
+						<p:outputLabel value="* Razón Social:" />
+					</div>
+					<p:inputText styleClass="Wid70" placeholder="Razón Social "
+						value="#{beanMantenedorCliente.entidadRegistrar.lRazonSocial}"
+						id="Razon" required="true" onblur="ChangeCase(this);" />
+				</pe:fluidGridItem>
+			</p:outputPanel>
+
+			<p:outputPanel
+				rendered="#{beanMantenedorCliente.entidadRegistrar.lTipoCliente eq 'J'}">
+				<pe:fluidGridItem type="input">
+					<div class="dynaFormLabel">
+						<p:outputLabel value="Tipo Identificación:" />
+					</div>
+					<p:selectOneMenu
+						value="#{beanMantenedorCliente.entidadRegistrar.lTipoIdentificacion}">
+						<f:selectItem itemLabel="RUC" itemValue="1" />
+					</p:selectOneMenu>
+				</pe:fluidGridItem>
+			</p:outputPanel>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Identificación:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder="Identificación"
+					value="#{beanMantenedorCliente.entidadRegistrar.lIdentificacion}"
+					required="true" id="Identificacion">
+				</p:inputText>
+			</pe:fluidGridItem>
+
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Email:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder="Email"
+					value="#{beanMantenedorCliente.entidadRegistrar.lEmail}" id="Email"
+					required="true">
+					<f:validateRegex
+						pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+				</p:inputText>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Celular:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder="Celular"
+					value="#{beanMantenedorCliente.entidadRegistrar.lCelular}"
+					id="Celular">
+				</p:inputText>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Dirección:" />
+				</div>
+				<p:inputTextarea styleClass="Wid70" placeholder="Dirección"
+					value="#{beanMantenedorCliente.entidadRegistrar.lDireccion}"
+					id="Direccion" required="true" onblur="ChangeCase(this);"></p:inputTextarea>
+			</pe:fluidGridItem>
+		</p:panelGrid>
+
+
+
+		<p:commandButton value="Actualizar" styleClass="CyanButton"
+			actionListener="#{beanMantenedorCliente.guardarOActualizar}"
+			process="PanelActualizar"
+			update=":#{p:component('mensajeGlobal')}, :#{p:component('tablaDatos')}">
+			<p:confirm header="Confirmación"
+				message="Seguro que desea realizar esta operación?"
+				icon="ui-icon-alert" />
+		</p:commandButton>
+
+	</ui:define>
+
+	<ui:define name="control_dialogo">
+		<p:ajax event="close" update=":#{p:component('panel')}"
+			listener="#{beanMantenedorCliente.eventoControlCierreDialogo}" />
+	</ui:define>
+
+</ui:composition>

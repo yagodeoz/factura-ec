@@ -1,0 +1,249 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	template="/WEB-INF/template_mantenedor.xhtml">
+
+
+	<ui:define name="head">
+		<title>#{beanMantenedorImpuesto.tituloPagina}</title>
+	</ui:define>
+	<ui:define name="subheader">
+       #{beanMantenedorImpuesto.descripcionPagina}
+    </ui:define>
+
+	<ui:define name="titulo_tab">
+		#{beanMantenedorImpuesto.tab}
+	</ui:define>
+	<ui:define name="cab_formulario">		
+		#{beanMantenedorImpuesto.ayudaPagina}
+	</ui:define>
+	<ui:define name="grid_formulario">
+		<p:panelGrid columns="2" layout="grid"
+			style="border:0px !important; background:none;" id="panel">
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Código:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder=" Código "
+					value="#{beanMantenedorImpuesto.entidadRegistrar.lCodigoImpuesto}"
+					id="Codigo" required="true" onblur="ChangeCase(this);"
+					requiredMessage="Debe ingresar el código del impuesto" />
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Descripción:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder=" Descripción "
+					value="#{beanMantenedorImpuesto.entidadRegistrar.lDescripcion}"
+					id="Descripcion" required="true" onblur="ChangeCase(this);" 
+						requiredMessage="Debe ingresar la descripción del impuesto"
+					/>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<h:outputText value="* Porcentaje:"></h:outputText>
+				</div>
+				<p:inputText value="#{beanMantenedorImpuesto.entidadRegistrar.lPorcentaje}"
+				styleClass="Wid70" placeholder=" Porcentaje "
+				id="Porcentaje" required="true" onblur="ChangeCase(this);" 
+						requiredMessage="Debe ingresar el porcentaje del impuesto"
+				></p:inputText>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="select">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="Tipo:"></p:outputLabel>
+				</div>
+				<p:selectOneMenu value="#{beanMantenedorImpuesto.entidadRegistrar.lTipoImpuesto}">
+					<f:selectItem itemLabel="IVA" itemValue="2"/>
+					<f:selectItem itemLabel="ICE" itemValue="3"/>
+				</p:selectOneMenu>
+			</pe:fluidGridItem>
+
+		</p:panelGrid>
+
+		<p:commandButton value="Cancelar" styleClass="RedButton"
+			update="panel" process="@this">
+			<p:resetInput target="panel" />
+		</p:commandButton>
+		<p:commandButton value="Registrar" styleClass="CyanButton"
+			actionListener="#{beanMantenedorImpuesto.guardarOActualizar}"
+			process="contenedor"
+			update=":#{p:component('contenedor')}, :#{p:component('mensajeGlobal')}, :#{p:component('tablaDatos')}, :#{p:component('dialogoMantenimiento')}" />
+	</ui:define>
+
+	<ui:define name="cab_tabla_datos">
+		#{beanMantenedorImpuesto.cabeceraTabla}
+	</ui:define>
+
+	<ui:define name="tabla_datos">
+		<p:dataTable value="#{beanMantenedorImpuesto.listaEntidades}"
+			var="cargo"
+			emptyMessage="#{beanMantenedorImpuesto.mensajeTablaVacia}" rows="8"
+			reflow="true" paginator="true" paginatorPosition="bottom"
+			id="tablaDatos" paginatorAlwaysVisible="false">
+
+
+			<p:column headerText="Código" width="10%">
+				<h:outputText value="#{cargo.lCodigoImpuesto}" />
+			</p:column>
+
+			<p:column headerText="Descripción" width="20%">
+				<h:outputText value="#{cargo.lDescripcion}" />
+			</p:column>
+
+			<p:column headerText="Porcentaje" width="15%">
+				<h:outputText value="#{cargo.lPorcentaje}" />
+			</p:column>
+
+			<p:column headerText="Tipo Impuesto" width="15%">
+				<h:outputText value="#{cargo.lTipoImpuesto}" />
+			</p:column>
+
+
+			<p:column headerText="Estado" width="6%">
+				<h:outputText
+					value="#{cargo.estado eq beanMantenedorImpuesto.estadoActivo?'ACTIVO':'INACTIVO'}" />
+			</p:column>
+
+
+			<p:column headerText="Fecha Registro" width="10%">
+				<h:outputText value="#{cargo.fechaRegistro}">
+					<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"
+						timeZone="#{beanMantenedorImpuesto.currentTimeZone}" />
+				</h:outputText>
+			</p:column>
+
+			<p:column headerText="Acciones" width="9%">
+
+				<p:panelGrid columns="2">
+
+					<p:commandLink title="Actualizar"
+						actionListener="#{beanMantenedorImpuesto.actualizarEntidad}"
+						update=":#{p:component('dialogoMantenimiento')}" process="@this">
+
+						<i class="fa fa-edit Fs20 BoldGray DispBlock"> </i>
+
+						<f:attribute
+							name="#{beanMantenedorImpuesto.nombreAtributoCambioEstado}"
+							value="#{cargo}"></f:attribute>
+
+					</p:commandLink>
+					<p:commandLink title="Cambiar Estado"
+						actionListener="#{beanMantenedorImpuesto.cambiarEstado}"
+						update="@form" process="@this">
+						<i
+							class="#{cargo.estado eq beanMantenedorImpuesto.estadoActivo ? 'fa fa-toggle-on' : 'fa fa-toggle-off' } Fs20 BoldGray DispBlock"></i>
+						<f:attribute
+							name="#{beanMantenedorImpuesto.nombreAtributoCambioEstado}"
+							value="#{cargo}"></f:attribute>
+
+						<p:confirm header="Confirmación"
+							message="Seguro que desea realizar esta operación?"
+							icon="ui-icon-alert" />
+					</p:commandLink>
+
+					<p:commandLink title="Detalles Adicionales"
+						
+						update=":#{p:component('dialogoCertificado')}" process="@this"
+						oncomplete="PF('dialogoCertificado').show();">
+						<i class="fa fa-file-code-o Fs20 BoldGray DispBlock"> </i>
+						<f:attribute name="EMPRESA" value="#{cargo}"></f:attribute>
+					</p:commandLink>
+
+				</p:panelGrid>
+			</p:column>
+
+		</p:dataTable>
+
+
+
+		<p:dialog
+			header="Datos Adicionales Producto: #{beanMantenedorImpuesto.entidadRegistrar.lDescripcion}"
+			widgetVar="dialogoCertificado" id="dialogoCertificado" modal="true"
+			width="40%">
+
+			<p:panelGrid columns="2" layout="grid" id="panelCertificado">
+			</p:panelGrid>
+
+		</p:dialog>
+
+	</ui:define>
+
+	<ui:define name="cab_dialogo">
+		#{beanMantenedorImpuesto.cabeceraDialogo}
+	</ui:define>
+	<ui:define name="cab_panel_dialogo">
+#{beanMantenedorImpuesto.cabeceraPanelDialogo}
+</ui:define>
+
+	<ui:define name="datos_dialogo">
+		<p:panelGrid columns="2" layout="grid"
+			style="border:0px !important; background:none;" id="panel">
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Código:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder=" Código "
+					value="#{beanMantenedorImpuesto.entidadRegistrar.lCodigoImpuesto}"
+					id="Codigo" required="true" onblur="ChangeCase(this);"
+					requiredMessage="Debe ingresar el código del impuesto" />
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="* Descripción:" />
+				</div>
+				<p:inputText styleClass="Wid70" placeholder=" Descripción "
+					value="#{beanMantenedorImpuesto.entidadRegistrar.lDescripcion}"
+					id="Descripcion" required="true" onblur="ChangeCase(this);" 
+						requiredMessage="Debe ingresar la descripción del impuesto"
+					/>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="input">
+				<div class="dynaFormLabel">
+					<h:outputText value="* Porcentaje:"></h:outputText>
+				</div>
+				<p:inputText value="#{beanMantenedorImpuesto.entidadRegistrar.lPorcentaje}"
+				styleClass="Wid70" placeholder=" Porcentaje "
+				id="Porcentaje" required="true" onblur="ChangeCase(this);" 
+						requiredMessage="Debe ingresar el porcentaje del impuesto"
+				></p:inputText>
+			</pe:fluidGridItem>
+
+			<pe:fluidGridItem type="select">
+				<div class="dynaFormLabel">
+					<p:outputLabel value="Tipo:"></p:outputLabel>
+				</div>
+				<p:selectOneMenu value="#{beanMantenedorImpuesto.entidadRegistrar.lTipoImpuesto}">
+					<f:selectItem itemLabel="IVA" itemValue="2"/>
+					<f:selectItem itemLabel="ICE" itemValue="3"/>
+				</p:selectOneMenu>
+			</pe:fluidGridItem>
+
+		</p:panelGrid>
+
+		<p:commandButton value="Actualizar" styleClass="CyanButton"
+			actionListener="#{beanMantenedorImpuesto.guardarOActualizar}"
+			process="PanelActualizar"
+			update=":#{p:component('mensajeGlobal')}, :#{p:component('tablaDatos')}">
+			<p:confirm header="Confirmación"
+				message="Seguro que desea realizar esta operación?"
+				icon="ui-icon-alert" />
+		</p:commandButton>
+
+	</ui:define>
+
+	<ui:define name="control_dialogo">
+		<p:ajax event="close" update=":#{p:component('panel')}"
+			listener="#{beanMantenedorImpuesto.eventoControlCierreDialogo}" />
+	</ui:define>
+
+</ui:composition>

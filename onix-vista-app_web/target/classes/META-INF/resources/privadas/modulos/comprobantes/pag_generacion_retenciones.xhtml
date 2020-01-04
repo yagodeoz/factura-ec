@@ -1,0 +1,435 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" 
+	template="#{configuracionesGeneralesMB.getValorConstanteConfiguracion('RUTA_TEMPLATE_GENERAL')}">
+	
+	<ui:define name="SEGM_CONTENIDO_OPCIONES_TITULO">
+		<h:outputText value="Emisión de retenciones electrónica" />
+	</ui:define>
+
+	<ui:define name="SEGM_CONTENIDO_OPCIONES"> 
+	
+		<h:form id="frmComprobanteReten">
+		<p:growl id="msgs" showDetail="true" />
+		<p:commandButton style="display:none" id="enterBtn"/>
+         <p:defaultCommand target="enterBtn" />
+
+			
+
+			<p:fieldset legend="Emisión de retenciones eléctronicas">
+
+				<p:fieldset legend="Datos Generales">
+
+					<h:panelGrid columns="3" cellpadding="5">
+						
+					
+					<p:outputLabel value="Empresas:" />
+				    <p:selectOneMenu id="cbmRuc" value="#{comprobanteMBean.mbGeneral.id}">
+					<f:selectItem itemValue="" itemLabel="Seleccione una empresa" />
+					<f:selectItems value="#{comprobanteMBean.mbGeneral.itemsCompania}" />
+					<p:ajax event="change" listener="#{comprobanteMBean.actualizaInfoCia}"
+						update=":frmComprobanteReten:outRazonSocial , :frmComprobanteReten:cmbEmiEstab"></p:ajax>
+				     </p:selectOneMenu>
+				  <h:outputText value="#{comprobanteMBean.mbGeneral.compania.ruc}" id="outRazonSocial" />
+							
+						<p:outputLabel value="Punto de Emisión:"/>
+						<p:selectOneMenu id="cmbEmiEstab" value="#{comprobanteMBean.emisionEstab}">
+							<f:selectItem itemValue="-" itemLabel="Seleccione uno" />
+							<f:selectItems value="#{comprobanteMBean.tiposEmisionEstab}"/>
+						</p:selectOneMenu>
+						<p:outputLabel value="" />
+								
+							
+						
+						<p:outputLabel for="button" value="Fecha de emisión(dd/mm/yyyy):" />
+						
+						<p:calendar id="button" value="#{comprobanteMBean.fechaemision}" 
+					showOn="button" size="10"  readonlyInput="true" pattern="dd/MM/yyyy"  >
+					 
+					</p:calendar>
+
+					
+					</h:panelGrid>
+					
+				<p:remoteCommand name="frmComprobanteReten" autoRun="true" action="#{comprobanteMBean.init()}"  update ="frmComprobanteReten:cbmRuc, frmComprobanteReten:outRazonSocial, frmComprobanteReten:cmbEmiEstab, frmComprobanteReten:pImp"/>
+	
+
+				</p:fieldset>
+				<br />
+
+				<p:fieldset legend="Datos del Sujeto Retenido">
+					<!--  <legend>Datos del Sujeto Retenido</legend>-->
+					<h:panelGrid columns="8" cellpadding="0" style=" width : 1075px;" id="pgDatosRetenido">
+
+						<h:outputLabel
+							value="Ruc/CI/Pasaporte/Identificación Del Exterior: " />
+						<h:panelGrid columns="4" style="margin-bottom:10px"
+							cellpadding="5" id="pgDatosRetencion">
+							
+							<p:inputText id="txtIdentComprador"
+								value="#{comprobanteMBean.identificacionRetenido}" >
+									<p:ajax event="blur"
+								listener="#{comprobanteMBean.presentarDialogoCliente}"
+								update="idDlgCliente" process="@this" partialSubmit="true"></p:ajax>
+								</p:inputText>
+								
+							<p:commandButton  icon="ui-icon-search"
+								onclick="PF('dlgRazonSocial').show();"
+								actionListener="#{comprobanteMBean.limpiezaDatos}" disabled="#{frmComprobanteReten.consumidorFinal}"
+								process="@this" partialSubmit="true"
+								update=":frmComprobanteReten:pgDatosRetenido,dialogoBusqueda:idTablaResultado" />	
+						</h:panelGrid>
+
+						<h:outputLabel value="* Periodo Fiscal: " />
+						<h:outputText value="MES:" />
+						<p:inputMask mask="99" value="#{comprobanteMBean.mesFiscal}" size="3"
+							maxlength="2" readonly="true" />
+						<h:outputText value="AÑO:" />
+						<p:inputMask mask="9999" value="#{comprobanteMBean.anioFiscal}" maxlength="4"
+							size="4" readonly="true"  />
+						<p:outputLabel value="Registro Contable" />
+						
+						<h:outputText value="Tipo Documento" />
+						<h:outputText
+							value="#{comprobanteMBean.lTipoIdentificacion(comprobanteMBean.tipoIdentComprador)}"
+							id="txtTipoDocComprador" />
+
+						<h:outputLabel value="Razón Social/Nombre" />
+						<h:outputText value="#{comprobanteMBean.razonSocialRetenido}"
+							id="txtNomComprador" />	
+					
+					
+					</h:panelGrid>
+
+
+
+				</p:fieldset>
+				<br />
+
+
+				<br />
+
+				<p:fieldset legend="Detalle del Comprobante de Retención">
+
+					<div align="left">
+						<p:commandButton value="Añadir Impuesto al Detalle"
+							partialSubmit="true" process="@this" onclick="PF('det1').show();"></p:commandButton>
+					</div>
+					<p:dataTable value="#{comprobanteMBean.detalleRetencion}"
+						id="idTblTabla" var="p"  emptyMessage="No existen detalle de la retención" >
+						<p:column width="70" headerText="Cod. Reten.">
+							<p:outputLabel process="@this" size="3" value="#{p.codRetencion}" />
+						</p:column>
+						<p:column width="68" headerText="Código">
+							<p:outputLabel size="3" value="#{p.codigo}" />
+						</p:column>
+
+						<p:column width="60" headerText="Descripción">
+							<p:outputLabel size="2" value="#{p.descripcion}" />
+						</p:column>
+
+						<p:column width="210" headerText="Base imponible">
+							<p:outputLabel size="19" value="#{p.baseImponible}" />
+						</p:column>
+
+						<p:column headerText="Porcentaje">
+							<p:outputLabel value="#{p.porcentaje}" />
+						</p:column>
+
+						<p:column width="85" headerText="Total">
+							<p:outputLabel value="#{p.total}" />
+						</p:column>
+
+						<p:column headerText="Documento">
+							<p:outputLabel value="#{p.documento}" />
+						</p:column>
+						<p:column headerText="Fecha">
+							<p:outputLabel value="#{p.fechaEmisionRetenido}">
+								<f:convertDateTime pattern="dd/MM/yyyy" />
+							</p:outputLabel>
+						</p:column>
+						<p:column headerText="Tipo">
+							<p:outputLabel value="#{p.tipo}" />
+						</p:column>
+						<p:column headerText="Acción">
+
+							<p:commandButton icon="ui-icon-closethick"
+								actionListener="#{comprobanteMBean.eliminarFila}"
+								update=":frmComprobanteReten:idTblTabla">
+								<f:attribute name="Retencion" value="#{p}"></f:attribute>
+							</p:commandButton>
+						</p:column>
+
+					</p:dataTable>
+				</p:fieldset>
+				<br />
+
+				<table width="100%">
+					<tr>
+						<td width="50%"><p:fieldset legend="Acciones">
+
+								<center>
+									<h:panelGrid columns="2" cellpadding="5">
+										<p:commandButton value="Guardar"
+											actionListener="#{comprobanteMBean.guardar}" update=":frmComprobanteReten:msgs ,:frmComprobanteReten:idTblTabla "
+											 />
+										<p:commandButton value="Nuevo" action="#{comprobanteMBean.reset}" update=":frmComprobanteReten"/>
+
+									</h:panelGrid>
+								</center>
+
+							</p:fieldset></td>
+
+						<td width="50%"><p:fieldset legend="Datos Adicionales">
+
+								<div align="right">
+
+									<p:commandButton value="+" partialSubmit="true" process="@this"
+										onclick="PF('det').show();"></p:commandButton>
+
+								</div>
+								<p:dataTable value="#{comprobanteMBean.detallesAdicionales}"
+									id="idTblTabla2" var="ad"  emptyMessage="No existen detalles adicionales"  >
+									<p:column width="100" headerText="Nombre">
+										<p:outputLabel process="@this" value="#{ad.nombre}" />
+									</p:column>
+
+									<p:column width="100" headerText="Descripción">
+										<h:inputText size="60"  value="#{ad.descripcion}"  disabled="#{!ad.editable}" onkeypress="if (event.keyCode == 13) {return false; };"/>
+									</p:column>
+
+									<p:column headerText="Acción" width="50">
+										<p:commandButton icon="ui-icon-closethick" actionListener="#{comprobanteMBean.eliminarFilaAdicional}"
+											update="idTblTabla2" disabled="#{ad.nombre.equals('USUARIO')?'true':ad.nombre.equals('DIRECCION')?'true':
+											ad.nombre.equals('EMAILCLIENTE')?'true':'false'}">
+											<f:attribute name="ADICIONALDET" value="#{ad}"></f:attribute>
+										</p:commandButton>
+									</p:column>
+								</p:dataTable>
+							</p:fieldset></td>
+
+					</tr>
+				</table>
+			</p:fieldset>
+			
+			
+		<p:dialog id="idDlgCliente" widgetVar="idDlgCliente"
+				header="Datos Cliente" resizable="false" closable="false">
+				<p:growl id="mensajesCliente"></p:growl>
+				<p:panel id="pIngCli">
+					<h:panelGrid columns="2">
+						<h:outputLabel value="Tipo Identificación: " />
+						<p:selectOneMenu filter="true" id="cmbTipoIdentificacion"
+							value="#{comprobanteMBean.lClienteSuscriptor.lTipoIdentificacion}">
+							<f:selectItem itemLabel="Cédula" itemValue="05" />
+							<f:selectItem itemLabel="Ruc" itemValue="04" />
+							<f:selectItem itemLabel="Pasaporte" itemValue="06" />
+							<f:selectItem itemLabel="Ident Exterior" itemValue="08" />
+						</p:selectOneMenu>
+						<h:outputLabel value="Identificación: " />
+						<p:inputText 
+							value="#{comprobanteMBean.lClienteSuscriptor.lIdentificacion}"></p:inputText>
+						<h:outputLabel value="Nombre/Razón Social: " />
+						<p:inputText 
+							value="#{comprobanteMBean.lClienteSuscriptor.lRazonSocial}"></p:inputText>
+						<h:outputLabel value="Dirección: " />
+						<p:inputTextarea 
+							value="#{comprobanteMBean.lClienteSuscriptor.lDireccion}"></p:inputTextarea>
+						<h:outputLabel value="Emails Retenciones: " />
+						<p:inputTextarea 
+							value="#{comprobanteMBean.lClienteSuscriptor.lEmailsRetencion}"
+							title="Debe ingresar los emails, separados por ;"></p:inputTextarea>
+						<p:commandButton value="Aceptar"
+							actionListener="#{comprobanteMBean.actualizarClienteSuscriptor}"
+							process="pIngCli, mensajesCliente"
+							update="frmComprobanteReten:msgs, frmComprobanteReten:txtIdentComprador, frmComprobanteReten:txtNomComprador, frmComprobanteReten:idTblTabla2, frmComprobanteReten:txtNomComprador,  frmComprobanteReten:txtTipoDocComprador"></p:commandButton>
+					</h:panelGrid>
+
+				</p:panel>
+			</p:dialog>
+			 
+			
+			<p:dialog id="idDlgDet" widgetVar="det"
+				header="Ingreso Detalle Adicional" resizable="true">
+				<p:panel id="pIngDet">
+
+					<h:panelGrid columns="2">
+						<h:outputText value="Nombre" />
+						<p:inputText value="#{comprobanteMBean.adicional.nombre}" />
+						<h:outputText value="Valor" />
+						<p:inputText value="#{comprobanteMBean.adicional.descripcion}" />
+						<p:commandButton value="Aceptar"
+							action="#{comprobanteMBean.guardarDetalleAdicional}"
+							process="pIngDet"
+							update=":frmComprobanteReten:idTblTabla2 , :frmComprobanteReten:idDlgDet"
+							oncomplete="PF('det').hide();" />
+						<p:commandButton value="Cancelar" oncomplete="PF('det').hide();"></p:commandButton>
+					</h:panelGrid>
+				</p:panel>
+			</p:dialog>
+
+			<p:dialog id="DLimp" widgetVar="det1" header="Impuesto" resizable="false">
+				<p:panel id="pImp">
+					<h:panelGrid columns="8" id="pgTipo">
+						<h:outputText for="tipo_documento" value="Tipo de Documento: " />
+						<p:selectOneMenu id="tipo_documento"
+							value="#{comprobanteMBean.comprobanteRetencion.tipo}">
+							<p:ajax listener="#{comprobanteMBean.mostrar}" update="tipodocOtros" />
+							<f:selectItem itemLabel="Seleccione" itemValue="S" noSelectionOption="true" />
+							<f:selectItem itemLabel="Factura" itemValue="01" />
+							<f:selectItem itemLabel="Liq. de Compras" itemValue="03" />
+						</p:selectOneMenu>
+						<p:message for="tipo_documento" display="icon" />
+						<p:inputText disabled="#{comprobanteMBean.habilitar}" size="3"
+							maxlength="2" id="tipodocOtros"
+							value="#{comprobanteMBean.comprobanteRetencion.tipo}"
+							required="true" />
+						<p:message for="tipodocOtros" display="icon" />
+						<p:outputLabel for="Numero_Comprobante"
+							value="* Nro. Comprobante: " />
+						<p:inputText disabled="#{comprobanteMBean.validaNumeroComprobante}" size="30" id="Numero_Comprobante"
+							value="#{comprobanteMBean.comprobanteRetencion.documento}"
+							maxlength="15" onkeypress="return soloNumeros(event)" />
+						<p:message for="Numero_Comprobante" display="icon" />
+						<p:outputLabel for="Fecha_Emision"
+							value="Fecha de Emisión(dd/mm/yyyy):" />
+						<h:panelGroup>
+							<p:calendar id="Fecha_Emision" value="#{comprobanteMBean.comprobanteRetencion.fechaEmisionRetenido}"
+								showOn="button" pattern="dd/MM/yyyy">
+								<f:convertDateTime pattern="dd/MM/yyyy" timeStyle="short"
+							dateStyle="short" type="both" timeZone="#{comprobanteMBean.timeZone}" />
+							</p:calendar>
+							<p:message for="Fecha_Emision" display="icon" />
+						</h:panelGroup>
+						<p:outputLabel></p:outputLabel>
+						<p:outputLabel></p:outputLabel>
+
+&nbsp;
+&nbsp;
+<p:outputLabel></p:outputLabel>
+						<p:outputLabel
+							value="Ingrese los últimos 15 dígitos del documento. Ej 000012345678901" />
+
+&nbsp;
+
+<p:outputLabel style="width:1500px"></p:outputLabel>
+						<p:outputLabel>Fecha de Emisión del Comprobante de venta
+auorizado</p:outputLabel>
+					</h:panelGrid>
+					<h:panelGrid columns="8">
+						<p:outputLabel value="* Impuesto:" />&nbsp;
+
+<p:outputLabel></p:outputLabel>
+						<p:selectOneMenu id="impuesto"
+							value="#{comprobanteMBean.comprobanteRetencion.codigo}">
+							<p:ajax listener="#{comprobanteMBean.obtenerImpuesto}" 
+								update="cmbimpu,Numero_Comprobante" />
+							<f:selectItem itemLabel="Seleccione.." itemValue="S"
+								noSelectionOption="true" />
+							<f:selectItem itemLabel="I.V.A." itemValue="RET-IVA" />
+							<f:selectItem itemLabel="Impuesto a la Renta" itemValue="RET-IR" />
+							<f:selectItem itemLabel="Convenio de Debito" itemValue="RET-CDE" />
+							<f:selectItem itemLabel="Impuesto Salida Divisas" itemValue="RET-ISD" />
+							<f:selectItem itemLabel="Retenciones Por Rendimiento Financiero" itemValue="RET-RRF" />
+						</p:selectOneMenu>
+						<p:outputLabel></p:outputLabel>
+						<p:outputLabel value="Base Imponible" />
+						<p:outputLabel value="% de Retención" />
+						<p:outputLabel value="* Valor Retenido" />
+&nbsp;
+<p:outputLabel></p:outputLabel>
+						<p:outputLabel></p:outputLabel>
+						<p:selectOneMenu id="cmbimpu" style="width:400px"
+							value="#{comprobanteMBean.comprobanteRetencion.codRetencion}">
+							<p:ajax listener="#{comprobanteMBean.obtenerRetencion}"
+								update="pgreten,txtotal" />
+							<f:selectItem itemValue="-1" itemLabel="Seleccione" />
+							<f:selectItems value="#{comprobanteMBean.listaImpuesto}" />
+						</p:selectOneMenu>
+						<p:outputLabel></p:outputLabel>
+						<p:inputText
+							value="#{comprobanteMBean.comprobanteRetencion.baseImponible}">
+							<p:ajax listener="#{comprobanteMBean.calcular}" update="txtotal">
+							</p:ajax>
+						</p:inputText>
+						<p:inputText
+							value="#{comprobanteMBean.comprobanteRetencion.porcentaje}"
+							disabled="#{comprobanteMBean.habilitarporc}" id="pgreten" />
+						<p:inputText value="#{comprobanteMBean.comprobanteRetencion.total}"
+							id="txtotal" />
+					</h:panelGrid>
+					<div align="center">
+						<p:commandButton value="Aceptar"
+							actionListener="#{comprobanteMBean.validar}"
+							oncomplete="validarDialogo(xhr, status, args)"
+							update=":frmComprobanteReten:msgs ,idTblTabla,:frmComprobanteReten:DLimp" />
+						<p:commandButton value="Cancelar" oncomplete="PF('det1').hide();"></p:commandButton>
+					</div>
+				</p:panel>
+
+			</p:dialog>
+
+		</h:form>
+		
+			<p:dialog header="Buscar por Razón Social" widgetVar="dlgRazonSocial"
+			height="250" position="center center" id="dlgRazonSocial"
+			closable="true" closeOnEscape="true" modal="true" appendTo="@(body)"
+			resizable="false" showEffect="clip" hideEffect="clip" width="450">
+			<h:form id="dialogoBusqueda">
+				<p:message for="rruc" id="txtMensaje"  />
+				<h:panelGrid columns="3" id="idCriterios">
+					<h:outputText value="Razón Social:" />
+					<p:inputText value="#{comprobanteMBean.razonSocialBuscar}" required="true" id="rruc" requiredMessage="Ingrese el nombre de un cliente/proveedor"/>
+					<p:commandButton icon="ui-icon-search"
+						actionListener="#{comprobanteMBean.consultaRazonSocial}"
+						process="idCriterios" partialSubmit="true"
+						update="frmComprobanteReten:txtIdentComprador,txtMensaje,idTablaResultado" />
+				</h:panelGrid>
+
+				<p:dataTable id="idTablaResultado"
+					value="#{comprobanteMBean.lListaClienteSuscriptor}"
+					rows="5" var="proveedores" paginatorPosition="bottom"
+					rowKey="#{proveedores.lIdentificacion}"
+					selectionMode="single"
+					selection="#{comprobanteMBean.lClienteSuscriptorSeleccionado}"
+					paginator="true" emptyMessage="No se han encontrado registros">
+
+
+					<p:ajax event="rowSelect"
+						listener="#{comprobanteMBean.controladorEvento}"
+						update="frmComprobanteReten:msgs, frmComprobanteReten:txtIdentComprador, frmComprobanteReten:txtNomComprador, frmComprobanteReten:idTblTabla2, frmComprobanteReten:txtTipoDocComprador" oncomplete="PF('dlgRazonSocial').hide();" />
+
+					<p:column headerText="Razón Social"
+						style="width:100%; text-align:left;">
+						<h:outputText value="#{proveedores.lRazonSocial}" />
+					</p:column>
+					
+					<p:column headerText=" No- Identificación"
+						style="width:100%; text-align:left;">
+						<h:outputText value="#{proveedores.lIdentificacion}" />
+					</p:column>
+
+
+				</p:dataTable>
+			</h:form> 
+		</p:dialog>
+		
+		
+		<script type="text/javascript">  
+                        function validarDialogo(xhr, status, args) {  
+                        	if(args.validationFailed || !args.todocorrecto) {
+                        		PF('det1').show();
+                            } 
+                            else {   
+                            	PF('det1').hide();
+                                $('#loginLink').fadeOut();   
+                            }   
+                        }   
+                    </script>
+	</ui:define>
+	
+
+</ui:composition>
